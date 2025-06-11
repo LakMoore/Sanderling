@@ -718,6 +718,18 @@ public class EveOnline64
         //  Found in "_sr" Bunch
         "htmlstr",
 
+        // Module button info
+        "autoreload",  // int
+        "activationTimer",  // ???
+        "moduleButtonHint",  // ???
+        "isDeactivating",  // bool
+        "autorepeat",  // long
+        "online",  // bool
+        "quantity",  // int
+
+        // in Icon, might be useful for ButtonModule
+        "itemID", "typeID",
+
         // 2023-01-03 Sample with PhotonUI: process-sample-ebdfff96e7.zip
         "_texturePath", "_opacity", "_bgColor", "isExpanded"
     );
