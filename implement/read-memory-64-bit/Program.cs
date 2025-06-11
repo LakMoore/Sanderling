@@ -682,14 +682,14 @@ public class EveOnline64
             .ToImmutableList();
     }
 
-    struct PyDictEntry
+    internal struct PyDictEntry
     {
         public ulong hash;
         public ulong key;
         public ulong value;
     }
 
-    static readonly IImmutableSet<string> DictEntriesOfInterestKeys = ImmutableHashSet.Create(
+    internal static readonly IImmutableSet<string> DictEntriesOfInterestKeys = ImmutableHashSet.Create(
         "_top", "_left", "_width", "_height", "_displayX", "_displayY",
         "_displayHeight", "_displayWidth",
         "_name", "_text", "_setText",
