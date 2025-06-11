@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>eve_parse_ui</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ParseUserInterface.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\read-memory-64-bit\read-memory-64-bit.csproj" />
+  </ItemGroup>
+
+</Project>
