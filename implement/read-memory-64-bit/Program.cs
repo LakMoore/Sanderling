@@ -722,7 +722,7 @@ public class EveOnline64
         "_texturePath", "_opacity", "_bgColor", "isExpanded"
     );
 
-    struct LocalMemoryReadingTools
+    internal struct LocalMemoryReadingTools
     {
         public IMemoryReader memoryReader;
 
@@ -748,7 +748,7 @@ public class EveOnline64
          * */
         .Add("Link", new Func<ulong, LocalMemoryReadingTools, object>(ReadingFromPythonType_Link));
 
-    static object ReadingFromPythonType_str(ulong address, LocalMemoryReadingTools memoryReadingTools)
+    internal static string ReadPythonStringValue(ulong stringObjectAddress, IMemoryReader memoryReader, int maxLength)
     {
         return ReadPythonStringValue(address, memoryReadingTools.memoryReader, 0x1000);
     }
