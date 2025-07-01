@@ -154,6 +154,53 @@ namespace eve_parse_ui
         public UITreeNodeWithDisplayRegion? AbortUndockButton { get; set; }
     }
 
+    // ==== Inventory ====
+    public record InventoryWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<InventoryWindowLeftTreeEntry> LeftTreeEntries { get; init; }
+        public string? SubCaptionLabelText { get; init; }
+        public InventoryWindowCapacityGauge? SelectedContainerCapacityGauge { get; init; }
+        public Inventory? SelectedContainerInventory { get; init; }
+        public UITreeNodeWithDisplayRegion? ButtonToSwitchToListView { get; init; }
+        public UITreeNodeWithDisplayRegion? ButtonToStackAll { get; init; }
+    }
+
+    public record Inventory
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public InventoryItemsView? ItemsView { get; init; }
+        public ScrollControls? ScrollControls { get; init; }
+    }
+
+    public abstract record InventoryItemsView;
+    public record InventoryItemsListView(IReadOnlyList<InventoryItemsListViewEntry> Items) : InventoryItemsView;
+    public record InventoryItemsNotListView(IReadOnlyList<UITreeNodeWithDisplayRegion> Items) : InventoryItemsView;
+
+    public record InventoryWindowLeftTreeEntry
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? ToggleBtn { get; init; }
+        public UITreeNodeWithDisplayRegion? SelectRegion { get; init; }
+        public required string Text { get; init; }
+        public required IReadOnlyList<InventoryWindowLeftTreeEntryChild> Children { get; init; }
+    }
+
+    public record InventoryWindowLeftTreeEntryChild(InventoryWindowLeftTreeEntry Entry);
+
+    public record InventoryWindowCapacityGauge
+    {
+        public required int Used { get; init; }
+        public int? Maximum { get; init; }
+        public int? Selected { get; init; }
+    }
+
+    public record InventoryItemsListViewEntry
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyDictionary<string, string> CellsTexts { get; init; }
+    }
+
     // ==== Ship UI ====
     public record ShipUI
     {
@@ -309,5 +356,6 @@ namespace eve_parse_ui
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required string Text { get; init; }
     }
+
 
 }
