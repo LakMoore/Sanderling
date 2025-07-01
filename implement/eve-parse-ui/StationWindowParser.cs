@@ -26,7 +26,7 @@ namespace eve_parse_ui
             {
                 UiNode = lobbyWindowNode,
                 UndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "undock"),
-                AbortUndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "undocking")
+                AbortUndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "abort undock"),
             };
 
             return window;
