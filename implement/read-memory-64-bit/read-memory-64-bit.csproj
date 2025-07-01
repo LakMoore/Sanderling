@@ -5,6 +5,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>read_memory_64_bit</RootNamespace>
     <Nullable>annotations</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
