@@ -90,7 +90,6 @@ namespace eve_parse_ui
     }
 
     // ==== InfoPanel ====
-
     public record InfoPanelContainer
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
@@ -147,6 +146,18 @@ namespace eve_parse_ui
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
     }
 
+    // ==== Target ====
+    public record Target
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? BarAndImageCont { get; init; }
+        public required IReadOnlyList<string> TextsTopToBottom { get; init; }
+        public required bool IsActiveTarget { get; init; }
+        public UITreeNodeWithDisplayRegion? AssignedContainerNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> AssignedIcons { get; init; }
+    }
+
+    // ==== StationWindow ====
     public record StationWindow
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
@@ -199,6 +210,118 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyDictionary<string, string> CellsTexts { get; init; }
+    }
+
+    // ==== Chat ====
+    public record ChatWindowStack
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public ChatWindow? ChatWindow { get; init; }
+    }
+
+    public record ChatWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public string? Name { get; init; }
+        public ChatWindowUserlist? Userlist { get; init; }
+    }
+
+    public record ChatWindowUserlist
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<ChatUserEntry> VisibleUsers { get; init; }
+        public ScrollControls? ScrollControls { get; init; }
+    }
+
+    public record ChatUserEntry
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public string? Name { get; init; }
+        public string? StandingIconHint { get; init; }
+    }
+
+    // ==== Module Button Tooltip ====
+    public record ModuleButtonTooltip
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public ModuleButtonTooltipShortcut? Shortcut { get; init; }
+        public ModuleButtonTooltipOptimalRange? OptimalRange { get; init; }
+    }
+
+    public record ModuleButtonTooltipShortcut
+    {
+        public required string Text { get; init; }
+        public List<int>? ParseResult { get; init; }
+    }
+
+    public record ModuleButtonTooltipOptimalRange
+    {
+        public required string AsString { get; init; }
+        public int? InMeters { get; init; }
+    }
+
+    public record HeatStatusTooltip
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public int? LowPercent { get; init; }
+        public int? MediumPercent { get; init; }
+        public int? HighPercent { get; init; }
+    }
+
+    // ==== Neocom ====
+    public record Neocom
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? InventoryButton { get; init; }
+        public NeocomClock? Clock { get; init; }
+    }
+
+    public record NeocomClock
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required string Text { get; init; }
+        public ParsedTime? ParsedText { get; init; }
+    }
+
+    public record ParsedTime
+    {
+        public required int Hour { get; init; }
+        public required int Minute { get; init; }
+    }
+
+    // ==== Agent Conversation ====
+    public record AgentConversationWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    }
+
+    // ==== Bookmark Location ====
+    public record BookmarkLocationWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? SubmitButton { get; init; }
+        public UITreeNodeWithDisplayRegion? CancelButton { get; init; }
+    }
+
+    // ==== Fleet ====
+    public record FleetWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> FleetMembers { get; init; }
+    }
+
+    // ==== Watch List ====
+    public record WatchListPanel
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> Entries { get; init; }
+    }
+
+    // ==== Standalone Bookmark ====
+    public record StandaloneBookmarkWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> Entries { get; init; }
     }
 
     // ==== Ship UI ====
@@ -328,6 +451,14 @@ namespace eve_parse_ui
         public UITreeNodeWithDisplayRegion? WarpButton { get; init; }
     }
 
+    // ==== Directional Scanner ====
+    public record DirectionalScannerWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? ScrollNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> ScanResults { get; init; }
+    }
+
     // ==== MessageBox ====
     public class MessageBox
     {
@@ -357,5 +488,123 @@ namespace eve_parse_ui
         public required string Text { get; init; }
     }
 
+    public record KeyActivationWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? ActivateButton { get; init; }
+    }
+
+    public record CompressionWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? CompressButton { get; init; }
+        public WindowControls? WindowControls { get; init; }
+    }
+
+    public record LocationsWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<LocationsWindowPlaceEntry> PlaceEntries { get; init; }
+    }
+
+    public record LocationsWindowPlaceEntry
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required string MainText { get; init; }
+    }
+
+    public record WindowControls
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? MinimizeButton { get; init; }
+        public UITreeNodeWithDisplayRegion? CloseButton { get; init; }
+    }
+
+    // ==== SelectedItem ====
+    public record SelectedItemWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public UITreeNodeWithDisplayRegion? OrbitButton { get; init; }
+    }
+
+    // ==== Fitting ====
+    public record FittingWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    }
+
+    // ==== MarketOrders ====
+    public record MarketOrdersWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    }
+
+    // ==== Survey Scan ====
+    public record SurveyScanWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> ScanEntries { get; init; }
+    }
+
+    // ==== Repair Shop ====
+    public record RepairShopWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> Items { get; init; }
+        public UITreeNodeWithDisplayRegion? ButtonGroup { get; init; }
+        public required IReadOnlyList<RepairShopWindowButton> Buttons { get; init; }
+    }
+
+    public record RepairShopWindowButton
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public string? MainText { get; init; }
+    }
+
+    // ==== Character Sheet ====
+    public record CharacterSheetWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<UITreeNodeWithDisplayRegion> SkillGroups { get; init; }
+    }
+
+    // ==== Drones ====
+    public record DronesWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<DronesWindowEntryGroupStructure> DroneGroups { get; init; }
+        public DronesWindowEntryGroupStructure? DroneGroupInBay { get; init; }
+        public DronesWindowEntryGroupStructure? DroneGroupInSpace { get; init; }
+    }
+
+    public record DronesWindowEntryGroupStructure
+    {
+        public required DronesWindowDroneGroupHeader Header { get; init; }
+        public required IReadOnlyList<DronesWindowEntry> Children { get; init; }
+    }
+
+    public abstract record DronesWindowEntry;
+    public record DronesWindowEntryGroup(DronesWindowEntryGroupStructure Group) : DronesWindowEntry;
+    public record DronesWindowEntryDrone(DronesWindowEntryDroneStructure Drone) : DronesWindowEntry;
+
+    public record DronesWindowDroneGroupHeader
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public string? MainText { get; init; }
+        public DronesWindowDroneGroupHeaderQuantity? QuantityFromTitle { get; init; }
+    }
+
+    public record DronesWindowDroneGroupHeaderQuantity
+    {
+        public required int Current { get; init; }
+        public int? Maximum { get; init; }
+    }
+
+    public record DronesWindowEntryDroneStructure
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public string? MainText { get; init; }
+        public Hitpoints? HitpointsPercent { get; init; }
+    }
 
 }
