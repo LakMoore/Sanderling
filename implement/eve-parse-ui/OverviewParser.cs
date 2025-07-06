@@ -1,5 +1,6 @@
 ﻿
 using System.Diagnostics;
+using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
 namespace eve_parse_ui
 {
@@ -37,9 +38,6 @@ namespace eve_parse_ui
             var scrollNode = overviewWindowNode.ListDescendantsWithDisplayRegion()
                 .FirstOrDefault(n => n.pythonObjectTypeName.Contains("scroll", StringComparison.CurrentCultureIgnoreCase));
 
-            var scrollControlsNode = scrollNode?.ListDescendantsWithDisplayRegion()
-                .FirstOrDefault(n => n.pythonObjectTypeName.Contains("ScrollControls", StringComparison.CurrentCultureIgnoreCase));
-
             var headersContainerNode = scrollNode?.ListDescendantsWithDisplayRegion()
                 .FirstOrDefault(n => n.pythonObjectTypeName.Contains("headers", StringComparison.CurrentCultureIgnoreCase));
 
@@ -60,15 +58,15 @@ namespace eve_parse_ui
                 EntriesHeader = entriesHeader,
                 Entries = entries,
                 Tabs = overviewTabsTexts,
-                ScrollControls = ParseScrollControls(scrollControlsNode)
+                ScrollControls = UIParser.ParseScrollControls(overviewWindowNode)
             };
         }
 
-        private static OverviewWindowEntry ParseOverviewWindowEntry(List<(string, UITreeNodeWithDisplayRegion)> entriesHeaders, UITreeNodeWithDisplayRegion overviewEntryNode)
+        private static OverviewWindowEntry ParseOverviewWindowEntry(List<DisplayTextWithRegion> entriesHeaders, UITreeNodeWithDisplayRegion overviewEntryNode)
         {
             // Get all display texts from the node, sorted left to right
             var textsLeftToRight = UIParser.GetAllContainedDisplayTextsWithRegion(overviewEntryNode)
-                .OrderBy(t => t.Node.TotalDisplayRegion.X)
+                .OrderBy(t => t.Region.TotalDisplayRegion.X)
                 .Select(t => t.Text)
                 .ToList();
 
@@ -150,21 +148,6 @@ namespace eve_parse_ui
                 RightAlignedIconsHints = rightAlignedIconsHints,
                 CommonIndications = commonIndications,
                 OpacityPercent = opacityPercent
-            };
-        }
-
-        public static ScrollControls? ParseScrollControls(UITreeNodeWithDisplayRegion? scrollControlsNode)
-        {
-            if (scrollControlsNode == null)
-                return null;
-
-            var scrollHandle = scrollControlsNode.ListDescendantsWithDisplayRegion()
-                .FirstOrDefault(x => x.pythonObjectTypeName.Equals("ScrollHandle"));
-
-            return new ScrollControls
-            {
-                UiNode = scrollControlsNode,
-                ScrollHandle = scrollHandle
             };
         }
 

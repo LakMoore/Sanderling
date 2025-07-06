@@ -291,6 +291,7 @@ namespace eve_parse_ui
                 { "Jump", ShipManeuverType.ManeuverJump },
                 { "Orbit", ShipManeuverType.ManeuverOrbit },
                 { "Approach", ShipManeuverType.ManeuverApproach },
+                { "Docking", ShipManeuverType.ManeuverDock },
                 { "워프 드라이브 가동", ShipManeuverType.ManeuverWarp }, // Korean for "Warp Drive Active"
                 { "점프 중", ShipManeuverType.ManeuverJump } // Korean for "Jumping"
             };

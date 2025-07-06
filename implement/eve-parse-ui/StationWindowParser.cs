@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-
-namespace eve_parse_ui
+﻿namespace eve_parse_ui
 {
     public record StationWindowParser
     {

@@ -7,13 +7,17 @@ namespace eve_parse_ui
         public static InfoPanelContainer? ParseInfoPanelContainerFromUIRoot(UITreeNodeNoDisplayRegion uiTreeRoot)
         {
             var containerNode =
-                uiTreeRoot.ListDescendantsWithDisplayRegion()
-                .Where(n => n.pythonObjectTypeName == "InfoPanelContainer")
+                uiTreeRoot.GetDescendantsByType("InfoPanelContainer")
                 .OrderByDescending(n => UIParser.CountDescendantsInUITreeNode(n) * -1)
                 .FirstOrDefault();
 
             if (containerNode == null)
                 return null;
+
+            var searchBox = containerNode
+                .GetDescendantsByType("SingleLineEditText")
+                .Where(n => n.GetNameFromDictEntries() == "searchEdit")
+                .FirstOrDefault();
 
             return new InfoPanelContainer
             {
@@ -21,7 +25,8 @@ namespace eve_parse_ui
                 Icons = ParseInfoPanelIconsFromInfoPanelContainer(containerNode),
                 InfoPanelLocationInfo = ParseInfoPanelLocationInfoFromInfoPanelContainer(containerNode),
                 InfoPanelRoute = ParseInfoPanelRouteFromInfoPanelContainer(containerNode),
-                InfoPanelAgentMissions = ParseInfoPanelAgentMissionsFromInfoPanelContainer(containerNode)
+                InfoPanelAgentMissions = ParseInfoPanelAgentMissionsFromInfoPanelContainer(containerNode),
+                SearchBox = searchBox
             };
         }
 
@@ -157,9 +162,9 @@ namespace eve_parse_ui
 
         public static string? ParseCurrentStationNameFromInfoPanelLocationInfoLabelText(string text)
         {
-            var match = Regex.Match(text, @"alt='Current Station'>(.*?)</color>");
-            if (match.Success)
-                return match.Groups[1].Value.Trim();
+            var match = Regex.Match(text, @"<url=(.*?) alt='Current Station'>(.*?)</url>");
+            if (match.Success && match.Groups.Count == 3)
+                return match.Groups[2].Value.Trim();
 
             return null;
         }
@@ -174,6 +179,18 @@ namespace eve_parse_ui
             if (infoPanelRouteNode == null)
                 return null;
 
+            var isExpanded = infoPanelRouteNode
+                .GetDescendantsByName("mainCont")
+                .FirstOrDefault() != null;
+
+            var autopilotMenuButton =
+                infoPanelRouteNode.GetDescendantsByType("UtilMenu")
+                .FirstOrDefault();
+
+            var expandRouteButton =
+                infoPanelRouteNode.GetDescendantsByType("ExpandButton")
+                .FirstOrDefault();
+
             var routeElementMarkers =
                 infoPanelRouteNode.ListDescendantsWithDisplayRegion()
                 .Where(n => n.pythonObjectTypeName == "AutopilotDestinationIcon")
@@ -183,6 +200,9 @@ namespace eve_parse_ui
             return new InfoPanelRoute
             {
                 UiNode = infoPanelRouteNode,
+                IsExpanded = isExpanded,
+                ExpandRouteButton = expandRouteButton,
+                AutopilotMenuButton = autopilotMenuButton,
                 RouteElementMarkers = routeElementMarkers
             };
         }

@@ -1,5 +1,7 @@
-﻿using read_memory_64_bit;
+﻿using McMaster.Extensions.CommandLineUtils;
+using read_memory_64_bit;
 using System.Diagnostics;
+using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
 namespace eve_parse_ui
 {
@@ -11,15 +13,35 @@ namespace eve_parse_ui
 
             var uiTreeRootWithDisplayRegion = AsUITreeNodeWithDisplayRegion(uiTreeRoot);
             return new ParsedUserInterface
-            {
-                UiTree = uiTreeRootWithDisplayRegion,
-                ShipUI = ShipUIParser.ParseShipUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                InfoPanelContainer = InfoPanelParser.ParseInfoPanelContainerFromUIRoot(uiTreeRootWithDisplayRegion),
-                OverviewWindows = OverviewParser.ParseOverviewWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
-                ProbeScanner = ProbeScannerParser.ParseProbeScannerWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                StationWindow = StationWindowParser.ParseStationWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                MessageBoxes = MessageBoxParser.ParseMessageBoxesFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                LayerAboveMain = LayerAboveMainParser.ParseLayerAbovemainFromUITreeRoot(uiTreeRootWithDisplayRegion)
+                   {
+                        UiTree = uiTreeRootWithDisplayRegion,
+                        ShipUI = ShipUIParser.ParseShipUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        InfoPanelContainer = InfoPanelParser.ParseInfoPanelContainerFromUIRoot(uiTreeRootWithDisplayRegion),
+                        OverviewWindows = OverviewParser.ParseOverviewWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                        ProbeScannerWindow = ProbeScannerParser.ParseProbeScannerWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        StationWindow = StationWindowParser.ParseStationWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        MessageBoxes = MessageBoxParser.ParseMessageBoxesFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        LayerAboveMain = LayerAboveMainParser.ParseLayerAbovemainFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        ContextMenus = ContextMenuParser.ParseContextMenusFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        Targets = new List<Target>(),
+                        //SelectedItemWindow = SelectedItemWindowParser.ParseSelectedItemWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        DronesWindow = DronesWindowParser.ParseDronesWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        //FittingWindow = null,
+                        //DirectionalScannerWindow = null,
+                        InventoryWindows = InventoryWindowsParser.ParseInventoryWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        //ChatWindowStacks = ChatWindowStacksParser.ParseChatWindowStacksFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                        //AgentConversationWindows = AgentConversationParser.ParseAgentConversationWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                        //MarketOrdersWindow = null,
+                        //SurveyScanWindow = null,
+                        //BookmarkLocationWindow = null,
+                        //RepairShopWindow = null
+                        PlanetsWindow = PIParser.ParsePlanetWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        PlanetaryImportExportUI = PIParser.ParsePlanetaryImportExportUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        SessionTimeIndicator = SessionTimeIndicatorParser.ParseSessionTimeIndicatorFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        Neocom = NeocomParser.ParseNeocomFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        QuantityModal = QuantityModalParser.ParseQuantityModalFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        ExpandedUtilMenu = ExpandedUtilMenuParser.ParseExpandedUtilMenuFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                        ListWindows = ListWindowsParser.ParseListWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion)
             };
         }
 
@@ -28,14 +50,12 @@ namespace eve_parse_ui
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            var upgradedRootNode = new UITreeNodeNoDisplayRegion(node);
-
             var selfDisplayRegion = GetDisplayRegionFromDictEntries(node);
             if (selfDisplayRegion == null)
             {
                 // Root node has never been known to have no display region
                 Debug.Fail("Root node should have display region");
-                return upgradedRootNode;
+                return null;
             } else
             {
                 var totalDisplayRegion = new DisplayRegion(0, 0, selfDisplayRegion.Width, selfDisplayRegion.Height);
@@ -109,15 +129,25 @@ namespace eve_parse_ui
         {
             if (node == null) return null;
 
+            // Create a new list for child occluded regions to avoid modifying the parent's list
+            var childOccludedRegions = new List<DisplayRegion>(occludedRegions);
+
             var selfRegion = GetDisplayRegionFromDictEntries(node);
             if (selfRegion == null)
             {
-                if (node.children?.Count > 0)
+                // No display region for this node
+                List<UITreeNodeNoDisplayRegion> newChildren = [];
+                foreach (var child in node.children ?? [])
                 {
-                    // Should a node with no display region have children?
-                    //Debug.WriteLine($"{node.pythonObjectTypeName} Node with no display region has children!");
+                    var childResult = AsChildOfNodeWithDisplayRegion(
+                        child,
+                        new Location2d(inheritedOffset.X, inheritedOffset.Y),
+                        childOccludedRegions
+                    );
+                    if (childResult == null) continue;
+                    newChildren.Add(childResult);
                 }
-                return new UITreeNodeNoDisplayRegion(node);
+                return new UITreeNodeNoDisplayRegion(node) { Children = newChildren };
             }
 
             // Calculate the total region by applying the inherited offset
@@ -126,9 +156,6 @@ namespace eve_parse_ui
                 inheritedOffset.Y + selfRegion.Y,
                 selfRegion.Width,
                 selfRegion.Height);
-
-            // Create a new list for child occluded regions to avoid modifying the parent's list
-            var childOccludedRegions = new List<DisplayRegion>(occludedRegions);
 
             return AsUITreeNodeWithDisplayRegion(
                 node,
@@ -212,7 +239,7 @@ namespace eve_parse_ui
             return null;
         }
 
-        private static string? GetDisplayText(UITreeNode? node)
+        public static string? GetDisplayText(UITreeNode? node)
         {
             if (node?.dictEntriesOfInterest == null)
                 return null;
@@ -276,16 +303,30 @@ namespace eve_parse_ui
             if (node?.dictEntriesOfInterest == null)
                 return null;
 
-            if (node?.dictEntriesOfInterest?.TryGetValue("_color", out var colorObj) == true && colorObj is Dictionary<string, object> colorDict)
+            if (node?.dictEntriesOfInterest?.TryGetValue("_color", out var colorObj) == true)
             {
-                return new ColorComponents
+                if (colorObj is Dictionary<string, object> colorDict)
                 {
-                    A = (int)colorDict.GetValueOrDefault("aPercent", 100),
-                    R = (int)colorDict.GetValueOrDefault("rPercent", 100),
-                    G = (int)colorDict.GetValueOrDefault("gPercent", 100),
-                    B = (int)colorDict.GetValueOrDefault("bPercent", 100)
-                };
+                    return new ColorComponents
+                    {
+                        A = (int)colorDict.GetValueOrDefault("aPercent", 100),
+                        R = (int)colorDict.GetValueOrDefault("rPercent", 100),
+                        G = (int)colorDict.GetValueOrDefault("gPercent", 100),
+                        B = (int)colorDict.GetValueOrDefault("bPercent", 100)
+                    };
+                }
+                if (colorObj is PyColor pyColor)
+                {
+                    return new ColorComponents
+                    {
+                        A = pyColor.aPercent,
+                        R = pyColor.rPercent,
+                        G = pyColor.gPercent,
+                        B = pyColor.bPercent
+                    };
+                }
             }
+
             return null;
         }
 
@@ -414,7 +455,7 @@ namespace eve_parse_ui
         }
 
         internal static Dictionary<string, string> ParseListViewEntry(
-            List<(string Text, UITreeNodeWithDisplayRegion Node)> entriesHeaders,
+            List<DisplayTextWithRegion> entriesHeaders,
             UITreeNodeWithDisplayRegion listViewEntryNode
         ) {
             // Observations show two different kinds of representations of the texts in the cells in a list view:
@@ -428,20 +469,20 @@ namespace eve_parse_ui
             if (entriesHeaders.Count == 0)
                 return [];
 
-            var (leftmostText, leftmostNode) = entriesHeaders[0];
+            var leftmost = entriesHeaders[0];
             var cellsTexts = new Dictionary<string, string>();
 
             var allTextsWithRegions = GetAllContainedDisplayTextsWithRegion(listViewEntryNode);
 
-            foreach (var (cellText, cell) in allTextsWithRegions)
+            foreach (var cell in allTextsWithRegions)
             {
                 // Check if this text matches any header by region
                 var maybeHeaderTextByCellRegion = entriesHeaders
-                    .Where(header => header.Node != null && header.Text != null)
+                    .Where(header => header.Region != null && header.Text != null)
                     .Where(header =>
                     {
-                        var headerRegion = header.Node.TotalDisplayRegion;
-                        var cellRegion = cell.TotalDisplayRegion;
+                        var headerRegion = header.Region.TotalDisplayRegion;
+                        var cellRegion = cell.Region.TotalDisplayRegion;
                         return (headerRegion.X < cellRegion.X + 3) &&
                                (headerRegion.X + headerRegion.Width > cellRegion.X + cellRegion.Width - 3);
                     })
@@ -450,15 +491,15 @@ namespace eve_parse_ui
 
                 if (!string.IsNullOrEmpty(maybeHeaderTextByCellRegion))
                 {
-                    cellsTexts[maybeHeaderTextByCellRegion] = cellText;
+                    cellsTexts[maybeHeaderTextByCellRegion] = cell.Text;
                 }
                 else
                 {
                     // Check if this is a tab-separated cell with multiple values
-                    var distanceFromLeftmostHeader = cell.TotalDisplayRegion.X - leftmostNode.TotalDisplayRegion.X;
+                    var distanceFromLeftmostHeader = cell.Region.TotalDisplayRegion.X - leftmost.Region.TotalDisplayRegion.X;
                     if (Math.Abs(distanceFromLeftmostHeader) >= 4)
                     {
-                        var cellTexts = cellText.Split("<t>", StringSplitOptions.None)
+                        var cellTexts = cell.Text.Split("<t>", StringSplitOptions.None)
                             .Select(t => t.Trim())
                             .ToList();
 
@@ -484,12 +525,12 @@ namespace eve_parse_ui
                 .Select(text => text!); // null forgiving operator
         }
 
-        public static List<(string Text, UITreeNodeWithDisplayRegion Node)> GetAllContainedDisplayTextsWithRegion(UITreeNodeWithDisplayRegion? uiNode)
+        public static List<DisplayTextWithRegion> GetAllContainedDisplayTextsWithRegion(UITreeNodeWithDisplayRegion? uiNode)
         {
             if (uiNode == null)
                 return [];
 
-            var nodesWithText = new List<(string, UITreeNodeWithDisplayRegion)>();
+            List<DisplayTextWithRegion> nodesWithText = [];
 
             // Include the current node and all its descendants
             var allNodes = new List<UITreeNodeWithDisplayRegion> { uiNode };
@@ -500,7 +541,7 @@ namespace eve_parse_ui
                 var displayText = GetDisplayText(node);
                 if (!string.IsNullOrEmpty(displayText))
                 {
-                    nodesWithText.Add((displayText, node));
+                    nodesWithText.Add(new DisplayTextWithRegion() { Text = displayText, Region = node });
                 }
             }
 
@@ -517,6 +558,47 @@ namespace eve_parse_ui
                 )
                 .OrderBy(descendant => descendant.TotalDisplayRegion.AreaFromDisplayRegion().GetValueOrDefault(0))
                 .FirstOrDefault();
+        }
+
+        public static ScrollControls? ParseScrollControls(UITreeNodeWithDisplayRegion? controlRootNode)
+        {
+            if (controlRootNode == null)
+                return null;
+
+            var scrollContainer = controlRootNode.pythonObjectTypeName == "ScrollContainer"
+                ? controlRootNode
+                : controlRootNode.GetDescendantsByType("ScrollContainer").FirstOrDefault();
+
+            if (scrollContainer == null)
+                return null;
+
+            var scrollHandle = scrollContainer.GetDescendantsByType("ScrollHandle").FirstOrDefault();
+
+            return new ScrollControls
+            {
+                UiNode = scrollContainer,
+                ScrollHandle = scrollHandle
+            };
+        }
+
+        public static bool? IsCollapsedFromGlowSprite(UITreeNodeWithDisplayRegion node)
+        {
+            // For GlowSprite
+            // collapsed "res:/UI/Texture/Icons/38_16_228.png"
+            // expanded "res:/UI/Texture/Icons/38_16_229.png"
+
+            var texturepath = node.GetDescendantsByType("GlowSprite")
+                .Select(GetTexturePathFromDictEntries)
+                .FirstOrDefault();
+
+            bool? isCollapsed = null;
+            if (texturepath?.EndsWith("38_16_228.png") == true)
+                isCollapsed = true;
+
+            if (texturepath?.EndsWith("38_16_229.png") == true)
+                isCollapsed = false;
+
+            return isCollapsed;
         }
     }
 }

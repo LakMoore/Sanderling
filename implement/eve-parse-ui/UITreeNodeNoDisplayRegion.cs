@@ -1,4 +1,5 @@
 ﻿using read_memory_64_bit;
+using System.Xml.Linq;
 
 namespace eve_parse_ui
 {
@@ -6,14 +7,15 @@ namespace eve_parse_ui
     {
         public UITreeNodeNoDisplayRegion? Parent { get; set; }
 
-        public IReadOnlyList<UITreeNodeNoDisplayRegion>? Children { get; init; }
+        public required IReadOnlyList<UITreeNodeNoDisplayRegion> Children { get; init; }
 
         public UITreeNodeNoDisplayRegion(UITreeNode original) : base(
             original.pythonObjectAddress,
             original.pythonObjectTypeName,
             original.dictEntriesOfInterest,
             original.otherDictEntriesKeys,
-            original.children)
+            original.children
+        )
         {
             // children should have been completely converted to Children
             // comment the following line if you want to check

@@ -27,13 +27,13 @@
             string? textHeadline = uiNode.GetDescendantsByType("TextHeadline")
                 .FirstOrDefault()?
                 .GetAllContainedDisplayTextsWithRegion()?
-                .Select(tuple => tuple.Item1)
+                .Select(tuple => tuple.Text)
                 .FirstOrDefault();
 
             string? textBody = uiNode.GetDescendantsByType("TextBody")
                 .FirstOrDefault()?
                 .GetAllContainedDisplayTextsWithRegion()?
-                .Select(tuple => tuple.Item1)
+                .Select(tuple => tuple.Text)
                 .FirstOrDefault();
 
             var buttonGroup = uiNode
@@ -48,8 +48,8 @@
                     UiNode = buttonNode,
                     MainText = buttonNode?
                         .GetAllContainedDisplayTextsWithRegion()?
-                        .OrderBy(tuple => tuple.Item2.TotalDisplayRegion.AreaFromDisplayRegion() ?? 0)
-                        .Select(tuple => tuple.Item1)
+                        .OrderBy(tuple => tuple.Region.TotalDisplayRegion.AreaFromDisplayRegion() ?? 0)
+                        .Select(tuple => tuple.Text)
                         .FirstOrDefault()
                 })
                 .ToList();

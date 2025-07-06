@@ -415,7 +415,7 @@ namespace read_memory_64_bit
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Matching Python naming style")]
-    internal record PyColor
+    public record PyColor
     {
         public required int aPercent { get; init; }
         public required int rPercent { get; init; }

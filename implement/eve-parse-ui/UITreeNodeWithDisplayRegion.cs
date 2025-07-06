@@ -27,9 +27,15 @@ namespace eve_parse_ui
             return (T)dictEntriesOfInterest[key];
         }
 
-        public List<(string, UITreeNodeWithDisplayRegion)>? GetAllContainedDisplayTextsWithRegion()
+        public List<DisplayTextWithRegion> GetAllContainedDisplayTextsWithRegion()
         {
             return UIParser.GetAllContainedDisplayTextsWithRegion(this);
+        }
+
+        public record DisplayTextWithRegion
+        {
+            public required string Text { get; init; }
+            public required UITreeNodeWithDisplayRegion Region { get; init; }
         }
 
         public string? GetTexturePathFromDictEntries()
@@ -37,5 +43,4 @@ namespace eve_parse_ui
             return UIParser.GetTexturePathFromDictEntries(this);
         }
     }
-
 }

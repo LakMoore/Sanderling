@@ -1,17 +1,47 @@
 ﻿using read_memory_64_bit;
+using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
 namespace eve_parse_ui
 {
     public record ParsedUserInterface
     {
         public required UITreeNodeNoDisplayRegion UiTree { get; init; }
-        public required IReadOnlyList<OverviewWindow> OverviewWindows { get; init; }
-        public InfoPanelContainer? InfoPanelContainer { get; init; }
-        public StationWindow? StationWindow { get; init; }
+        public required IReadOnlyList<ContextMenu> ContextMenus { get; init; }
         public ShipUI? ShipUI { get; init; }
-        public ProbeScannerWindow? ProbeScanner { get; init; }
-        public LayerAboveMain? LayerAboveMain { get; init; }
+        public required IReadOnlyList<Target> Targets { get; init; }
+        public InfoPanelContainer? InfoPanelContainer { get; init; }
+        public required IReadOnlyList<OverviewWindow> OverviewWindows { get; init; }
+        public SelectedItemWindow? SelectedItemWindow { get; init; }
+        public DronesWindow? DronesWindow { get; init; }
+        //public FittingWindow? FittingWindow { get; init; }
+        public ProbeScannerWindow? ProbeScannerWindow { get; init; }
+        //public DirectionalScannerWindow? DirectionalScannerWindow { get; init; }
+        public StationWindow? StationWindow { get; init; }
+        public required IReadOnlyList<InventoryWindow> InventoryWindows { get; init; }
+        //public required IReadOnlyList<ChatWindowStack> ChatWindowStacks { get; init; }
+        //public required IReadOnlyList<AgentConversationWindow> AgentConversationWindows { get; init; }
+        //public MarketOrdersWindow? MarketOrdersWindow { get; init; }
+        //public SurveyScanWindow? SurveyScanWindow { get; init; }
+        //public BookmarkLocationWindow? BookmarkLocationWindow { get; init; }
+        //public RepairShopWindow? RepairShopWindow { get; init; }
+        //public CharacterSheetWindow? CharacterSheetWindow { get; init; }
+        //public FleetWindow? FleetWindow { get; init; }
+        //public LocationsWindow? LocationsWindow { get; init; }
+        //public WatchListPanel? WatchListPanel { get; init; }
+        //public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
+        //public ModuleButtonTooltip? ModuleButtonTooltip { get; init; }
+        //public HeatStatusTooltip? HeatStatusTooltip { get; init; }
+        public Neocom? Neocom { get; init; }
         public required IReadOnlyList<MessageBox> MessageBoxes { get; init; }
+        public LayerAboveMain? LayerAboveMain { get; init; }
+        //public KeyActivationWindow? KeyActivationWindow { get; init; }
+        //public CompressionWindow? CompressionWindow { get; init; }
+        public PlanetsWindow? PlanetsWindow { get; init; }
+        public PlanetaryImportExportUI? PlanetaryImportExportUI { get; init; }
+        public SessionTimeIndicator? SessionTimeIndicator { get; init; }
+        public QuantityModal? QuantityModal { get; init; }
+        public ExpandedUtilMenu? ExpandedUtilMenu { get; init; }
+        public required IReadOnlyList<ListWindow> ListWindows { get; init; }
     }
 
     public record DisplayRegion(int X, int Y, int Width, int Height)
@@ -35,14 +65,26 @@ namespace eve_parse_ui
 
     public record Location2d(int X, int Y);
 
-    // ==== Overview ====
+    // ==== Context Menu ====
+    public record ContextMenu
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<ContextMenuEntry> Entries { get; init; }
+    }
 
+    public record ContextMenuEntry
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required string Text { get; init; }
+    }
+
+    // ==== Overview ====
     public record OverviewWindow
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required string OverviewTabName { get; init; }
         public required IReadOnlyList<string> Tabs { get; init; }
-        public required IReadOnlyList<(string, UITreeNodeWithDisplayRegion)> EntriesHeader { get; init; }
+        public required IReadOnlyList<DisplayTextWithRegion> EntriesHeader { get; init; }
         public required IReadOnlyList<OverviewWindowEntry> Entries { get; init; }
         public required ScrollControls? ScrollControls { get; init; }
     }
@@ -97,6 +139,7 @@ namespace eve_parse_ui
         public InfoPanelLocationInfo? InfoPanelLocationInfo { get; set; }
         public InfoPanelRoute? InfoPanelRoute { get; set; }
         public InfoPanelAgentMissions? InfoPanelAgentMissions { get; set; }
+        public UITreeNodeWithDisplayRegion? SearchBox { get; set; }
     }
 
     public record InfoPanelIcons
@@ -112,6 +155,9 @@ namespace eve_parse_ui
     public record InfoPanelRoute
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
+        public required bool IsExpanded { get; set; }
+        public UITreeNodeWithDisplayRegion? ExpandRouteButton { get; set; }
+        public UITreeNodeWithDisplayRegion? AutopilotMenuButton { get; set; }
         public required List<InfoPanelRouteRouteElementMarker> RouteElementMarkers { get; set; }
     }
 
@@ -169,24 +215,28 @@ namespace eve_parse_ui
     public record InventoryWindow
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required IReadOnlyList<InventoryWindowLeftTreeEntry> LeftTreeEntries { get; init; }
+        public required string WindowCaption { get; init; }
+        public required LeftTreePanel LeftTreePanel { get; init; }
         public string? SubCaptionLabelText { get; init; }
         public InventoryWindowCapacityGauge? SelectedContainerCapacityGauge { get; init; }
-        public Inventory? SelectedContainerInventory { get; init; }
+        public required Inventory SelectedInventory { get; init; }
         public UITreeNodeWithDisplayRegion? ButtonToSwitchToListView { get; init; }
         public UITreeNodeWithDisplayRegion? ButtonToStackAll { get; init; }
+    }
+
+    public record LeftTreePanel
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<InventoryWindowLeftTreeEntry> Entries { get; init; }
+        public ScrollControls? ScrollControls { get; init; }
     }
 
     public record Inventory
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public InventoryItemsView? ItemsView { get; init; }
+        public required IReadOnlyList<InventoryItem> Items { get; init; }
         public ScrollControls? ScrollControls { get; init; }
     }
-
-    public abstract record InventoryItemsView;
-    public record InventoryItemsListView(IReadOnlyList<InventoryItemsListViewEntry> Items) : InventoryItemsView;
-    public record InventoryItemsNotListView(IReadOnlyList<UITreeNodeWithDisplayRegion> Items) : InventoryItemsView;
 
     public record InventoryWindowLeftTreeEntry
     {
@@ -194,10 +244,9 @@ namespace eve_parse_ui
         public UITreeNodeWithDisplayRegion? ToggleBtn { get; init; }
         public UITreeNodeWithDisplayRegion? SelectRegion { get; init; }
         public required string Text { get; init; }
-        public required IReadOnlyList<InventoryWindowLeftTreeEntryChild> Children { get; init; }
+        public required bool IsSelected { get; init; }
+        public required IReadOnlyList<InventoryWindowLeftTreeEntry> Children { get; init; }
     }
-
-    public record InventoryWindowLeftTreeEntryChild(InventoryWindowLeftTreeEntry Entry);
 
     public record InventoryWindowCapacityGauge
     {
@@ -206,10 +255,11 @@ namespace eve_parse_ui
         public int? Selected { get; init; }
     }
 
-    public record InventoryItemsListViewEntry
+    public record InventoryItem
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required IReadOnlyDictionary<string, string> CellsTexts { get; init; }
+        public required string Name { get; init; }
+        public int? Quantity { get; init; }
     }
 
     // ==== Chat ====
@@ -273,6 +323,7 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public UITreeNodeWithDisplayRegion? InventoryButton { get; init; }
+        public UITreeNodeWithDisplayRegion? PlanetaryIndustryButton { get; init; }
         public NeocomClock? Clock { get; init; }
     }
 
@@ -400,7 +451,8 @@ namespace eve_parse_ui
         ManeuverWarp,
         ManeuverJump,
         ManeuverOrbit,
-        ManeuverApproach
+        ManeuverApproach,
+        ManeuverDock
     }
 
     public record SquadronsUI
@@ -572,39 +624,80 @@ namespace eve_parse_ui
     public record DronesWindow
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required IReadOnlyList<DronesWindowEntryGroupStructure> DroneGroups { get; init; }
-        public DronesWindowEntryGroupStructure? DroneGroupInBay { get; init; }
-        public DronesWindowEntryGroupStructure? DroneGroupInSpace { get; init; }
+        public required DronesWindowDroneGroupHeader BayHeader { get; init; }
+        public required IReadOnlyList<DronesWindowDrone> DronesInBay { get; init; }
+        public required IReadOnlyList<DronesWindowDroneGroupHeader> DroneGroupsInBay { get; init; }
+        public required DronesWindowDroneGroupHeader SpaceHeader { get; init; }
+        public required IReadOnlyList<DronesWindowDrone> DronesInSpace { get; init; }
+        public required IReadOnlyList<DronesWindowDroneGroupHeader> DroneGroupsInSpace { get; init; }
     }
-
-    public record DronesWindowEntryGroupStructure
-    {
-        public required DronesWindowDroneGroupHeader Header { get; init; }
-        public required IReadOnlyList<DronesWindowEntry> Children { get; init; }
-    }
-
-    public abstract record DronesWindowEntry;
-    public record DronesWindowEntryGroup(DronesWindowEntryGroupStructure Group) : DronesWindowEntry;
-    public record DronesWindowEntryDrone(DronesWindowEntryDroneStructure Drone) : DronesWindowEntry;
 
     public record DronesWindowDroneGroupHeader
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public bool? IsCollapsed { get; init; }
         public string? MainText { get; init; }
-        public DronesWindowDroneGroupHeaderQuantity? QuantityFromTitle { get; init; }
+        public int? Quantity { get; init; }
+        public int? MaxQuantity { get; init; }
+        public UITreeNodeWithDisplayRegion? LaunchButton { get; init; }
+        public UITreeNodeWithDisplayRegion? EngageButton { get; init; }
+        public UITreeNodeWithDisplayRegion? ReturnButton { get; init; }
+        public UITreeNodeWithDisplayRegion? OrbitButton { get; init; }
     }
 
-    public record DronesWindowDroneGroupHeaderQuantity
-    {
-        public required int Current { get; init; }
-        public int? Maximum { get; init; }
-    }
-
-    public record DronesWindowEntryDroneStructure
+    public record DronesWindowDrone
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public string? MainText { get; init; }
+        public string? Type { get; init; }
+        public string? Activity { get; init; }
         public Hitpoints? HitpointsPercent { get; init; }
+        public UITreeNodeWithDisplayRegion? LaunchButton { get; init; }
+        public UITreeNodeWithDisplayRegion? EngageButton { get; init; }
+        public UITreeNodeWithDisplayRegion? ReturnButton { get; init; }
+        public UITreeNodeWithDisplayRegion? OrbitButton { get; init; }
     }
 
+    // ==== Planet Window ====
+    public record PlanetsWindow
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<Colony> Colonies { get; init; }
+        public required ScrollControls? ScrollControls { get; init; }
+        public UITreeNodeWithDisplayRegion? ViewButton { get; init; }
+        public UITreeNodeWithDisplayRegion? WarpToButton { get; init; }
+        public UITreeNodeWithDisplayRegion? AccessButton { get; init; }
+    }
+
+    public record Colony
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required string Name { get; init; }
+        public required bool IsSelected { get; init; }
+        public UITreeNodeWithDisplayRegion? RestartExtractionButton { get; init; }
+    }
+
+    public record PlanetaryImportExportUI
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required string Name { get; init; }
+        public required CustomsOfficeList CustomsList { get; init; }
+        public required CustomsOfficeList SpaceportList { get; init; }
+        public required int TransferCost { get; init; }
+        public required UITreeNodeWithDisplayRegion TransferButton { get; init; }
+    }
+
+    public record CustomsOfficeList
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required IReadOnlyList<CustomsEntry> Entries { get; init; }
+    }
+
+    public record CustomsEntry 
+    {
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required int Quantity { get; init; }
+        public required string CommodityName { get; init; }
+        public required string Tier { get; init; }
+        public required bool IsPending { get; init; }
+    }
 }

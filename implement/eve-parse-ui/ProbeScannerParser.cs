@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
 namespace eve_parse_ui
 {
@@ -41,32 +42,31 @@ namespace eve_parse_ui
         }
 
         public static ProbeScanResult ParseProbeScanResult(
-            List<(string, UITreeNodeWithDisplayRegion)> entriesHeaders,
+            List<DisplayTextWithRegion> entriesHeaders,
             UITreeNodeWithDisplayRegion scanResultNode)
         {
             var textsLeftToRight = scanResultNode
                 .GetAllContainedDisplayTextsWithRegion()?
-                .OrderBy(x => x.Item2.TotalDisplayRegion.X)
-                .Select(x => x.Item1)
+                .OrderBy(x => x.Region.TotalDisplayRegion.X)
+                .Select(x => x.Text)
                 .ToList();
 
             var cellsTexts = scanResultNode
                 .GetAllContainedDisplayTextsWithRegion()?
                 .Select(cell =>
                 {
-                    var (cellText, cellNode) = cell;
-                    var cellMiddle = cellNode.TotalDisplayRegion.X + (cellNode.TotalDisplayRegion.Width / 2);
+                    var cellMiddle = cell.Region.TotalDisplayRegion.X + (cell.Region.TotalDisplayRegion.Width / 2);
 
                     var matchingHeader = entriesHeaders
                         .FirstOrDefault(header =>
                         {
-                            var headerRegion = header.Item2.TotalDisplayRegion;
+                            var headerRegion = header.Region.TotalDisplayRegion;
                             return headerRegion.X < cellMiddle + 1 &&
                                    cellMiddle < headerRegion.X + headerRegion.Width - 1;
                         });
 
                     return matchingHeader != default
-                        ? (matchingHeader.Item1, cellText)
+                        ? (matchingHeader.Text, cell.Text)
                         : ((string, string)?)null;
                 })
                 .Where(x => x.HasValue)
