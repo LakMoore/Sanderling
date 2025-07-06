@@ -731,7 +731,11 @@ public class EveOnline64
         "itemID", "typeID",
 
         // 2023-01-03 Sample with PhotonUI: process-sample-ebdfff96e7.zip
-        "_texturePath", "_opacity", "_bgColor", "isExpanded"
+        "_texturePath", "_opacity", "_bgColor", "isExpanded",
+
+        // Planetary Industry
+        "isSelected",
+
     );
 
     internal struct LocalMemoryReadingTools
