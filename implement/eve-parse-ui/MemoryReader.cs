@@ -1,4 +1,5 @@
 ﻿using read_memory_64_bit;
+using System.Diagnostics;
 
 namespace eve_parse_ui
 {
@@ -28,6 +29,11 @@ namespace eve_parse_ui
 
                 if (uiTree != null)
                 {
+                    // if we're running from the IDE
+                    if (Debugger.IsAttached)
+                    {
+                        return uiTree;
+                    }
                     return uiTree.WithOtherDictEntriesRemoved();
                 }
             }
