@@ -41,6 +41,22 @@ namespace eve_parse_ui
 
         public IEnumerable<UITreeNodeWithDisplayRegion> ListDescendantsWithDisplayRegion()
         {
+            if (this.Children == null) yield break;
+
+            foreach (var child in this.Children)
+            {
+                if (child is UITreeNodeWithDisplayRegion childWithRegion)
+                {
+                    foreach (var descendant in childWithRegion.ListDescendantsWithDisplayRegionIncludingSelf())
+                    {
+                        yield return descendant;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<UITreeNodeWithDisplayRegion> ListDescendantsWithDisplayRegionIncludingSelf()
+        {
             if (this is UITreeNodeWithDisplayRegion node)
                 yield return node;
 
@@ -50,7 +66,7 @@ namespace eve_parse_ui
             {
                 if (child is UITreeNodeWithDisplayRegion childWithRegion)
                 {
-                    foreach (var descendant in childWithRegion.ListDescendantsWithDisplayRegion())
+                    foreach (var descendant in childWithRegion.ListDescendantsWithDisplayRegionIncludingSelf())
                     {
                         yield return descendant;
                     }
