@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using static read_memory_64_bit.EveOnline64;
 
@@ -35,7 +36,8 @@ namespace read_memory_64_bit
                  * */
                 .Add("Link", new Func<ulong, LocalMemoryReadingTools, object>(ReadingFromPythonType_Link))
                 .Add("instance", new Func<ulong, LocalMemoryReadingTools, object>(ReadingFromPythonType_instance))
-                .Add("dict", new Func<ulong, LocalMemoryReadingTools, List<DictionaryEntry>>(ReadingFromPythonType_dict));
+                .Add("dict", new Func<ulong, LocalMemoryReadingTools, List<DictionaryEntry>>(ReadingFromPythonType_dict))
+                .Add("long", new Func<ulong, LocalMemoryReadingTools, object>(ReadingFromPythonType_long));
         }
 
         internal string getPythonTypeNameFromPythonTypeObjectAddress(ulong typeObjectAddress)
@@ -227,6 +229,22 @@ namespace read_memory_64_bit
                 @int = value,
                 int_low32 = asInt32,
             };
+        }
+
+        internal object ReadingFromPythonType_long(ulong address, LocalMemoryReadingTools memoryReadingTools)
+        {
+            var intObjectMemory = memoryReadingTools.memoryReader.ReadBytes(address, 0x18);
+
+            if (!(intObjectMemory?.Length == 0x18))
+                return "Failed to read long object memory.";
+
+            var value = BitConverter.ToInt64(intObjectMemory.Value.Span[0x10..]);
+
+            var asInt64 = (long)value;
+
+            Debug.Assert(asInt64 == value);
+
+            return asInt64;
         }
 
         internal object ReadingFromPythonType_bool(ulong address, LocalMemoryReadingTools memoryReadingTools)
