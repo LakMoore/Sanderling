@@ -1,3 +1,8 @@
+# Lak Moore's Sanderling Fork
+This is a fork of Arcitectus' Sanderling project.  Read more about the original project below and at the original repository, here: https://github.com/Arcitectus/Sanderling.  There are two objectives of this fork:
+1. to further develop the read-memory-64-bit project without changing its functionality
+2. to port the Eve Online parsing routines from Elm to C# .Net9
+
 # Sanderling
 
 **Sanderling helps you read information from the [EVE Online](https://www.eveonline.com) game client using memory reading.**

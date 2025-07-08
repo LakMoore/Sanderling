@@ -1,3 +1,6 @@
+# Lak Moore's Fork
+This project is a direct fork from [Arcitectus/Sanderling on Github](https://github.com/Arcitectus/Sanderling/tree/main/implement/read-memory-64-bit) with some minor refactoring and extra bits.  The rest of this Readme is Arcitectus'.
+
 # Read Memory From the 64-Bit EVE Online Client
 
 For a guide on the functionality not specific to EVE Online, see <https://github.com/Viir/bots/blob/main/guide/how-to-collect-samples-for-64-bit-memory-reading-development.md>

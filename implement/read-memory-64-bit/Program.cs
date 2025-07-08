@@ -734,8 +734,7 @@ public class EveOnline64
         "_texturePath", "_opacity", "_bgColor", "isExpanded",
 
         // Planetary Industry
-        "isSelected",
-
+        "isSelected"
     );
 
     internal struct LocalMemoryReadingTools
