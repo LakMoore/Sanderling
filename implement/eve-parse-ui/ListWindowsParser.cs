@@ -85,7 +85,7 @@ namespace eve_parse_ui
                 CollapseAllButton = collapseAllButton,
                 ListGroups = listGroups,
                 CloseButton = closeButton,
-                ScrollControls = UIParser.ParseScrollControls(scrollControls)
+                ScrollBar = UIParser.ParseScrollBar(scrollControls)
             };
         }
 

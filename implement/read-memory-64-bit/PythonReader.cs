@@ -217,18 +217,9 @@ namespace read_memory_64_bit
             if (!(intObjectMemory?.Length == 0x18))
                 return "Failed to read int object memory.";
 
-            var value = BitConverter.ToInt64(intObjectMemory.Value.Span[0x10..]);
+            var value = BitConverter.ToInt32(intObjectMemory.Value.Span[0x10..]);
 
-            var asInt32 = (int)value;
-
-            if (asInt32 == value)
-                return asInt32;
-
-            return new
-            {
-                @int = value,
-                int_low32 = asInt32,
-            };
+            return value;
         }
 
         internal object ReadingFromPythonType_long(ulong address, LocalMemoryReadingTools memoryReadingTools)

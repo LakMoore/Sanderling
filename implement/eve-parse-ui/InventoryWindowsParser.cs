@@ -110,7 +110,7 @@ namespace eve_parse_ui
             {
                 UiNode = leftPanel,
                 Entries = leftTreeEntries,
-                ScrollControls = UIParser.ParseScrollControls(leftPanel)
+                ScrollBar = UIParser.ParseScrollBar(leftPanel)
             };
         }
 
@@ -190,7 +190,7 @@ namespace eve_parse_ui
             {
                 UiNode = inventoryNode,
                 Items = [.. items, .. invItems],
-                ScrollControls = UIParser.ParseScrollControls(scrollNode)
+                ScrollBar = UIParser.ParseScrollBar(scrollNode)
             };
         }
 

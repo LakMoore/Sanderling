@@ -20,6 +20,7 @@
                 UiNode = lobbyWindowNode,
                 UndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "undock"),
                 AbortUndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "abort undock"),
+                DockedModeButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "view"),
             };
 
             return window;

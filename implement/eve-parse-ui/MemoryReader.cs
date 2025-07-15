@@ -17,7 +17,7 @@ namespace eve_parse_ui
                     .Select(candidateAddress => EveOnline64.ReadUITreeFromAddress(candidateAddress, memoryReader, 99))
                     .OrderByDescending(uiTree => uiTree?.EnumerateSelfAndDescendants().Count() ?? -1)
                     .Select(uiTree => uiTree?.pythonObjectAddress)
-                    .First();
+                    .FirstOrDefault();
             }
         }
 

@@ -6,7 +6,7 @@
         public required UITreeNodeWithDisplayRegion CollapseAllButton { get; init; }
         public required IReadOnlyList<ListGroup> ListGroups { get; init; }
         public required UITreeNodeWithDisplayRegion CloseButton { get; init; }
-        public ScrollControls? ScrollControls { get; init; }
+        public ScrollBar? ScrollBar { get; init; }
     }
 
     public record ListGroup

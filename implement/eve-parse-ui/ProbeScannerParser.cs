@@ -55,14 +55,14 @@ namespace eve_parse_ui
                 .GetAllContainedDisplayTextsWithRegion()?
                 .Select(cell =>
                 {
-                    var cellMiddle = cell.Region.TotalDisplayRegion.X + (cell.Region.TotalDisplayRegion.Width / 2);
+                    var justRightFromCellLeftMargin = cell.Region.TotalDisplayRegion.X + 2;
 
                     var matchingHeader = entriesHeaders
                         .FirstOrDefault(header =>
                         {
                             var headerRegion = header.Region.TotalDisplayRegion;
-                            return headerRegion.X < cellMiddle + 1 &&
-                                   cellMiddle < headerRegion.X + headerRegion.Width - 1;
+                            return headerRegion.X < justRightFromCellLeftMargin + 1 &&
+                                   justRightFromCellLeftMargin < headerRegion.X + headerRegion.Width - 1;
                         });
 
                     return matchingHeader != default

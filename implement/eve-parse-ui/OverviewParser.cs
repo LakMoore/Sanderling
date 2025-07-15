@@ -58,7 +58,7 @@ namespace eve_parse_ui
                 EntriesHeader = entriesHeader,
                 Entries = entries,
                 Tabs = overviewTabsTexts,
-                ScrollControls = UIParser.ParseScrollControls(overviewWindowNode)
+                ScrollBar = UIParser.ParseScrollBar(overviewWindowNode)
             };
         }
 

@@ -1,5 +1,4 @@
 ﻿using read_memory_64_bit;
-using System.Xml.Linq;
 
 namespace eve_parse_ui
 {

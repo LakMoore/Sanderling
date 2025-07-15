@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace eve_parse_ui
 {
-    public class PIParser
+    public class PlanetaryIndustryParser
     {
         public static PlanetsWindow? ParsePlanetWindowFromUITreeRoot(UITreeNodeNoDisplayRegion uiRoot)
         {
@@ -36,7 +36,7 @@ namespace eve_parse_ui
             {
                 UiNode = planetWindow,
                 Colonies = ParseColonies(planetWindow),
-                ScrollControls = UIParser.ParseScrollControls(planetWindow),
+                ScrollBar = UIParser.ParseScrollBar(planetWindow),
                 ViewButton = viewButton,
                 WarpToButton = warpToButton,
                 AccessButton = accessButton

@@ -5,7 +5,7 @@ namespace eve_parse_ui
 {
     public record ParsedUserInterface
     {
-        public required UITreeNodeNoDisplayRegion UiTree { get; init; }
+        public required UITreeNodeWithDisplayRegion UiTree { get; init; }
         public required IReadOnlyList<ContextMenu> ContextMenus { get; init; }
         public ShipUI? ShipUI { get; init; }
         public required IReadOnlyList<Target> Targets { get; init; }
@@ -42,6 +42,8 @@ namespace eve_parse_ui
         public QuantityModal? QuantityModal { get; init; }
         public ExpandedUtilMenu? ExpandedUtilMenu { get; init; }
         public required IReadOnlyList<ListWindow> ListWindows { get; init; }
+        public CharacterSelectionScreen? CharacterSelectionScreen { get; init; }
+        public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
     }
 
     public record DisplayRegion(int X, int Y, int Width, int Height)
@@ -86,10 +88,10 @@ namespace eve_parse_ui
         public required IReadOnlyList<string> Tabs { get; init; }
         public required IReadOnlyList<DisplayTextWithRegion> EntriesHeader { get; init; }
         public required IReadOnlyList<OverviewWindowEntry> Entries { get; init; }
-        public required ScrollControls? ScrollControls { get; init; }
+        public required ScrollBar? ScrollBar { get; init; }
     }
 
-    public record ScrollControls
+    public record ScrollBar
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
         public UITreeNodeWithDisplayRegion? ScrollHandle { get; set; }
@@ -209,6 +211,7 @@ namespace eve_parse_ui
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
         public UITreeNodeWithDisplayRegion? UndockButton { get; set; }
         public UITreeNodeWithDisplayRegion? AbortUndockButton { get; set; }
+        public UITreeNodeWithDisplayRegion? DockedModeButton { get; set; }
     }
 
     // ==== Inventory ====
@@ -228,14 +231,14 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<InventoryWindowLeftTreeEntry> Entries { get; init; }
-        public ScrollControls? ScrollControls { get; init; }
+        public ScrollBar? ScrollBar { get; init; }
     }
 
     public record Inventory
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<InventoryItem> Items { get; init; }
-        public ScrollControls? ScrollControls { get; init; }
+        public ScrollBar? ScrollBar { get; init; }
     }
 
     public record InventoryWindowLeftTreeEntry
@@ -280,7 +283,7 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<ChatUserEntry> VisibleUsers { get; init; }
-        public ScrollControls? ScrollControls { get; init; }
+        public ScrollBar? ScrollControls { get; init; }
     }
 
     public record ChatUserEntry
@@ -318,28 +321,6 @@ namespace eve_parse_ui
         public int? HighPercent { get; init; }
     }
 
-    // ==== Neocom ====
-    public record Neocom
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public UITreeNodeWithDisplayRegion? InventoryButton { get; init; }
-        public UITreeNodeWithDisplayRegion? PlanetaryIndustryButton { get; init; }
-        public NeocomClock? Clock { get; init; }
-    }
-
-    public record NeocomClock
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required string Text { get; init; }
-        public ParsedTime? ParsedText { get; init; }
-    }
-
-    public record ParsedTime
-    {
-        public required int Hour { get; init; }
-        public required int Minute { get; init; }
-    }
-
     // ==== Agent Conversation ====
     public record AgentConversationWindow
     {
@@ -372,23 +353,27 @@ namespace eve_parse_ui
     public record StandaloneBookmarkWindow
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required UITreeNodeWithDisplayRegion? SearchTextbox { get; init; }
         public required IReadOnlyList<UITreeNodeWithDisplayRegion> Entries { get; init; }
+        public ScrollBar? ScrollBar { get; init; }
     }
 
     // ==== Ship UI ====
     public record ShipUI
     {
-        public required UITreeNodeWithDisplayRegion UiNode { get; set; }
-        public required ShipUICapacitor Capacitor { get; set; }
-        public required Hitpoints HitpointsPercent { get; set; }
-        public ShipUIIndication? Indication { get; set; }
-        public required List<ShipUIModuleButton> ModuleButtons { get; set; }
-        public required ModuleButtonsRows ModuleButtonsRows { get; set; }
-        public required List<OffensiveBuffButton> OffensiveBuffButtons { get; set; }
-        public SquadronsUI? SquadronsUI { get; set; }
-        public UITreeNodeWithDisplayRegion? StopButton { get; set; }
-        public UITreeNodeWithDisplayRegion? MaxSpeedButton { get; set; }
-        public ShipUIHeatGauges? HeatGauges { get; set; }
+        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+        public required ShipUICapacitor Capacitor { get; init; }
+        public required Hitpoints HitpointsPercent { get; init; }
+        public ShipUIIndication? Indication { get; init; }
+        public required List<ShipUIModuleButton> ModuleButtons { get; init; }
+        public required ModuleButtonsRows ModuleButtonsRows { get; init; }
+        public required List<OffensiveBuffButton> OffensiveBuffButtons { get; init; }
+        public required List<string> DefensiveBuffs { get; init; }
+        public SquadronsUI? SquadronsUI { get; init; }
+        public UITreeNodeWithDisplayRegion? StopButton { get; init; }
+        public int CurrentSpeed { get; init; }
+        public UITreeNodeWithDisplayRegion? MaxSpeedButton { get; init; }
+        public ShipUIHeatGauges? HeatGauges { get; init; }
     }
 
     public record ShipUIIndication
@@ -451,6 +436,7 @@ namespace eve_parse_ui
         ManeuverWarp,
         ManeuverJump,
         ManeuverOrbit,
+        ManeuverAlign,
         ManeuverApproach,
         ManeuverDock
     }
@@ -655,49 +641,5 @@ namespace eve_parse_ui
         public UITreeNodeWithDisplayRegion? EngageButton { get; init; }
         public UITreeNodeWithDisplayRegion? ReturnButton { get; init; }
         public UITreeNodeWithDisplayRegion? OrbitButton { get; init; }
-    }
-
-    // ==== Planet Window ====
-    public record PlanetsWindow
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required IReadOnlyList<Colony> Colonies { get; init; }
-        public required ScrollControls? ScrollControls { get; init; }
-        public UITreeNodeWithDisplayRegion? ViewButton { get; init; }
-        public UITreeNodeWithDisplayRegion? WarpToButton { get; init; }
-        public UITreeNodeWithDisplayRegion? AccessButton { get; init; }
-    }
-
-    public record Colony
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required string Name { get; init; }
-        public required bool IsSelected { get; init; }
-        public UITreeNodeWithDisplayRegion? RestartExtractionButton { get; init; }
-    }
-
-    public record PlanetaryImportExportUI
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required string Name { get; init; }
-        public required CustomsOfficeList CustomsList { get; init; }
-        public required CustomsOfficeList SpaceportList { get; init; }
-        public required int TransferCost { get; init; }
-        public required UITreeNodeWithDisplayRegion TransferButton { get; init; }
-    }
-
-    public record CustomsOfficeList
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required IReadOnlyList<CustomsEntry> Entries { get; init; }
-    }
-
-    public record CustomsEntry 
-    {
-        public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required int Quantity { get; init; }
-        public required string CommodityName { get; init; }
-        public required string Tier { get; init; }
-        public required bool IsPending { get; init; }
     }
 }

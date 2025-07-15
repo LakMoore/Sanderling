@@ -1,5 +1,4 @@
-﻿using McMaster.Extensions.CommandLineUtils;
-using read_memory_64_bit;
+﻿using read_memory_64_bit;
 using System.Diagnostics;
 using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
@@ -13,40 +12,42 @@ namespace eve_parse_ui
 
             var uiTreeRootWithDisplayRegion = AsUITreeNodeWithDisplayRegion(uiTreeRoot);
             return new ParsedUserInterface
-                   {
-                        UiTree = uiTreeRootWithDisplayRegion,
-                        ShipUI = ShipUIParser.ParseShipUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        InfoPanelContainer = InfoPanelParser.ParseInfoPanelContainerFromUIRoot(uiTreeRootWithDisplayRegion),
-                        OverviewWindows = OverviewParser.ParseOverviewWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
-                        ProbeScannerWindow = ProbeScannerParser.ParseProbeScannerWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        StationWindow = StationWindowParser.ParseStationWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        MessageBoxes = MessageBoxParser.ParseMessageBoxesFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        LayerAboveMain = LayerAboveMainParser.ParseLayerAbovemainFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        ContextMenus = ContextMenuParser.ParseContextMenusFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        Targets = new List<Target>(),
-                        //SelectedItemWindow = SelectedItemWindowParser.ParseSelectedItemWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        DronesWindow = DronesWindowParser.ParseDronesWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        //FittingWindow = null,
-                        //DirectionalScannerWindow = null,
-                        InventoryWindows = InventoryWindowsParser.ParseInventoryWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        //ChatWindowStacks = ChatWindowStacksParser.ParseChatWindowStacksFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
-                        //AgentConversationWindows = AgentConversationParser.ParseAgentConversationWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
-                        //MarketOrdersWindow = null,
-                        //SurveyScanWindow = null,
-                        //BookmarkLocationWindow = null,
-                        //RepairShopWindow = null
-                        PlanetsWindow = PIParser.ParsePlanetWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        PlanetaryImportExportUI = PIParser.ParsePlanetaryImportExportUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        SessionTimeIndicator = SessionTimeIndicatorParser.ParseSessionTimeIndicatorFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        Neocom = NeocomParser.ParseNeocomFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        QuantityModal = QuantityModalParser.ParseQuantityModalFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        ExpandedUtilMenu = ExpandedUtilMenuParser.ParseExpandedUtilMenuFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                        ListWindows = ListWindowsParser.ParseListWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion)
-            };
+                {
+                    UiTree = uiTreeRootWithDisplayRegion,
+                    ShipUI = ShipUIParser.ParseShipUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    InfoPanelContainer = InfoPanelParser.ParseInfoPanelContainerFromUIRoot(uiTreeRootWithDisplayRegion),
+                    OverviewWindows = OverviewParser.ParseOverviewWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                    ProbeScannerWindow = ProbeScannerParser.ParseProbeScannerWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    StationWindow = StationWindowParser.ParseStationWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    MessageBoxes = MessageBoxParser.ParseMessageBoxesFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    LayerAboveMain = LayerAboveMainParser.ParseLayerAbovemainFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    ContextMenus = ContextMenuParser.ParseContextMenusFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    Targets = new List<Target>(),
+                    //SelectedItemWindow = SelectedItemWindowParser.ParseSelectedItemWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    DronesWindow = DronesWindowParser.ParseDronesWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    //FittingWindow = null,
+                    //DirectionalScannerWindow = null,
+                    InventoryWindows = InventoryWindowsParser.ParseInventoryWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    //ChatWindowStacks = ChatWindowStacksParser.ParseChatWindowStacksFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                    //AgentConversationWindows = AgentConversationParser.ParseAgentConversationWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion).ToList(),
+                    //MarketOrdersWindow = null,
+                    //SurveyScanWindow = null,
+                    //BookmarkLocationWindow = null,
+                    //RepairShopWindow = null
+                    PlanetsWindow = PlanetaryIndustryParser.ParsePlanetWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    PlanetaryImportExportUI = PlanetaryIndustryParser.ParsePlanetaryImportExportUIFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    SessionTimeIndicator = SessionTimeIndicatorParser.ParseSessionTimeIndicatorFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    Neocom = NeocomParser.ParseNeocomFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    QuantityModal = QuantityModalParser.ParseQuantityModalFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    ExpandedUtilMenu = ExpandedUtilMenuParser.ParseExpandedUtilMenuFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    ListWindows = ListWindowsParser.ParseListWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    CharacterSelectionScreen = CharacterSelectionParser.ParseCharacterSelectionFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    StandaloneBookmarkWindow = StandaloneBookmarkWindowParser.ParseStandaloneBookmarkWindowFromUITreeRoot(uiTreeRootWithDisplayRegion)                        ,
+                };
         }
 
         // only called on the root node!
-        private static UITreeNodeNoDisplayRegion AsUITreeNodeWithDisplayRegion(UITreeNode node)
+        private static UITreeNodeWithDisplayRegion AsUITreeNodeWithDisplayRegion(UITreeNode node)
         {
             ArgumentNullException.ThrowIfNull(node);
 
@@ -70,7 +71,7 @@ namespace eve_parse_ui
             DisplayRegion selfDisplayRegion,
             DisplayRegion totalDisplayRegion,
             List<DisplayRegion> occludedRegions
-            )
+        )
         {
             ArgumentNullException.ThrowIfNull(node);
 
@@ -103,6 +104,7 @@ namespace eve_parse_ui
                 }
             }
 
+            // Find the largest non-overlapping region
             var totalDisplayRegionVisible = SubtractRegionsFromRegion(totalDisplayRegion, occludedRegions)
                 .OrderByDescending(region => region.Width * region.Height)
                 .FirstOrDefault() ?? new DisplayRegion(-1, -1, 0, 0);
@@ -560,23 +562,23 @@ namespace eve_parse_ui
                 .FirstOrDefault();
         }
 
-        public static ScrollControls? ParseScrollControls(UITreeNodeWithDisplayRegion? controlRootNode)
+        public static ScrollBar? ParseScrollBar(UITreeNodeWithDisplayRegion? controlRootNode)
         {
             if (controlRootNode == null)
                 return null;
 
-            var scrollContainer = controlRootNode.pythonObjectTypeName == "ScrollContainer"
+            var scrollBar = controlRootNode.pythonObjectTypeName == "Scrollbar"
                 ? controlRootNode
-                : controlRootNode.GetDescendantsByType("ScrollContainer").FirstOrDefault();
+                : controlRootNode.GetDescendantsByType("Scrollbar").FirstOrDefault();
 
-            if (scrollContainer == null)
+            if (scrollBar == null)
                 return null;
 
-            var scrollHandle = scrollContainer.GetDescendantsByType("ScrollHandle").FirstOrDefault();
+            var scrollHandle = scrollBar.GetDescendantsByType("ScrollHandle").FirstOrDefault();
 
-            return new ScrollControls
+            return new ScrollBar
             {
-                UiNode = scrollContainer,
+                UiNode = scrollBar,
                 ScrollHandle = scrollHandle
             };
         }

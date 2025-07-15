@@ -14,6 +14,10 @@ namespace eve_parse_ui
             if (neocomNode == null)
                 return null;
 
+            var eveMenuButton = neocomNode
+                .GetDescendantsByType("ButtonEveMenu")
+                .FirstOrDefault();
+
             var inventory = neocomNode
                 .GetDescendantsByType("ButtonInventory")
                 .FirstOrDefault();
@@ -29,14 +33,53 @@ namespace eve_parse_ui
                 .GetDescendantsByType("ClockButton")
                 .FirstOrDefault();
 
+            var eveMenus = uiRoot
+                .GetDescendantsByType("PanelEveMenu")
+                .Union(uiRoot.GetDescendantsByType("PanelGroup"));
+
+            var panelGroups = eveMenus
+                .SelectMany(em => em.GetDescendantsByType("PanelEntryGroup"))
+                .Select(ParsePanelItem)
+                .Where(pg => pg != null)
+                .Cast<NeocomPanelItem>()
+                .ToList();
+
+            var panelCommands = eveMenus
+                .SelectMany(em => em.GetDescendantsByType("PanelEntryCmd"))
+                .Select(ParsePanelItem)
+                .Where(pc => pc != null)
+                .Cast<NeocomPanelItem>()
+                .ToList();
+
             return new Neocom()
             {
                 UiNode = neocomNode,
+                EveMenuButton = eveMenuButton,
                 InventoryButton = inventory,
                 PlanetaryIndustryButton = pi,
+                PanelGroups = panelGroups,
+                PanelCommands = panelCommands,
                 Clock = ParseClock(clock)
             };
         }
+
+        private static NeocomPanelItem? ParsePanelItem(UITreeNodeWithDisplayRegion panelItem)
+        {
+            if (panelItem == null)
+                return null;
+
+            var text = panelItem
+                .GetAllContainedDisplayTextsWithRegion()
+                .Select(t => t.Text)
+                .FirstOrDefault() ?? "";
+
+            return new NeocomPanelItem()
+            {
+                UiNode = panelItem,
+                Text = text
+            };
+        }
+
 
         private static NeocomClock? ParseClock(UITreeNodeWithDisplayRegion? clock)
         {

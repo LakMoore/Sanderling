@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics;
+
 namespace eve_parse_ui
 {
     internal record ShipUIParser
@@ -88,6 +90,33 @@ namespace eve_parse_ui
             var stopButton = shipUINode.GetDescendantsByType("StopButton").FirstOrDefault();
             var maxSpeedButton = shipUINode.GetDescendantsByType("MaxSpeedButton").FirstOrDefault();
 
+            var speedText = shipUINode.GetDescendantsByType("SpeedGuage")
+                .SelectMany(node => node.GetDescendantsByName("speedLabel"))
+                .Select(UIParser.GetDisplayText)
+                .FirstOrDefault();
+
+            int speed = 0;
+
+            if (!string.IsNullOrWhiteSpace(speedText))
+            {
+                if (speedText.EndsWith(" m/s"))
+                {
+                    var speedString = speedText[..^4];
+                    speed = int.Parse(speedString);
+                }
+                else
+                {
+                    Debug.Fail("Unexpected speed unit in " + speedText);
+                }
+            }
+
+            var defensiveBuffs = shipUINode
+                .GetDescendantsByType("DefensiveBuffButton")
+                .Select(b => b.GetNameFromDictEntries())
+                .Where(b => b != null)
+                .Cast<string>()
+                .ToList() ?? [];
+
             return new ShipUI
             {
                 UiNode = shipUINode,
@@ -97,8 +126,10 @@ namespace eve_parse_ui
                 ModuleButtons = moduleButtons,
                 ModuleButtonsRows = GroupShipUIModulesIntoRows(capacitor, moduleButtons),
                 OffensiveBuffButtons = offensiveBuffButtons,
+                DefensiveBuffs = defensiveBuffs,
                 SquadronsUI = squadronsUI,
                 StopButton = stopButton,
+                CurrentSpeed = speed,
                 MaxSpeedButton = maxSpeedButton,
                 HeatGauges = heatGauges
             };
@@ -291,6 +322,7 @@ namespace eve_parse_ui
                 { "Jump", ShipManeuverType.ManeuverJump },
                 { "Orbit", ShipManeuverType.ManeuverOrbit },
                 { "Approach", ShipManeuverType.ManeuverApproach },
+                { "Align", ShipManeuverType.ManeuverAlign },
                 { "Docking", ShipManeuverType.ManeuverDock },
                 { "워프 드라이브 가동", ShipManeuverType.ManeuverWarp }, // Korean for "Warp Drive Active"
                 { "점프 중", ShipManeuverType.ManeuverJump } // Korean for "Jumping"
