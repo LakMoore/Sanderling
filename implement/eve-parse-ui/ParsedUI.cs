@@ -480,13 +480,17 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required List<ProbeScanResult> ScanResults { get; init; }
+        public ScrollBar? ScrollBar { get; init; }
     }
 
     public record ProbeScanResult
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required List<string>? TextsLeftToRight { get; init; }
-        public required Dictionary<string, string>? CellsTexts { get; init; }
+        public required string Distance { get; init; }
+        public required string ID { get; init; }
+        public required string Name { get; init; }
+        public string? Group { get; init; }
+        public string? Signal { get; init; }
         public UITreeNodeWithDisplayRegion? WarpButton { get; init; }
     }
 

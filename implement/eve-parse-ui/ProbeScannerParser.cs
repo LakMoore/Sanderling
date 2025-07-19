@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static eve_parse_ui.UITreeNodeWithDisplayRegion;
-
-namespace eve_parse_ui
+﻿namespace eve_parse_ui
 {
     internal class ProbeScannerParser
     {
@@ -16,73 +9,64 @@ namespace eve_parse_ui
             if (windowNode == null)
                 return null;
 
-            var scanResultsNodes = windowNode
+            var scanResults = windowNode
                 .GetDescendantsByType("ScanResultNew")
-                .ToList();
-
-            var scrollNode = windowNode
-                .ListDescendantsWithDisplayRegion()
-                .Where(node => node.GetNameFromDictEntries()
-                    ?.Contains("ResultsContainer") ?? false)
-                .SelectMany(node => node.ListDescendantsWithDisplayRegion())
-                .FirstOrDefault(node => node.pythonObjectTypeName.Contains("scroll", StringComparison.CurrentCultureIgnoreCase));
-
-            var headersContainerNode = scrollNode;
-            var entriesHeaders = headersContainerNode?.GetAllContainedDisplayTextsWithRegion() ?? [];
-
-            var scanResults = scanResultsNodes
-                .Select(node => ParseProbeScanResult(entriesHeaders, node))
+                .Select(ParseProbeScanResult)
                 .ToList();
 
             return new ProbeScannerWindow
             {
                 UiNode = windowNode,
-                ScanResults = scanResults
+                ScanResults = scanResults,
+                ScrollBar = UIParser.ParseScrollBar(windowNode)
             };
         }
 
         public static ProbeScanResult ParseProbeScanResult(
-            List<DisplayTextWithRegion> entriesHeaders,
-            UITreeNodeWithDisplayRegion scanResultNode)
+            UITreeNodeWithDisplayRegion scanResultNode
+        )
         {
-            var textsLeftToRight = scanResultNode
-                .GetAllContainedDisplayTextsWithRegion()?
-                .OrderBy(x => x.Region.TotalDisplayRegion.X)
-                .Select(x => x.Text)
+            var detailsLeftToRight = scanResultNode
+                .GetDescendantsByType("EveLabelMedium")
                 .ToList();
-
-            var cellsTexts = scanResultNode
-                .GetAllContainedDisplayTextsWithRegion()?
-                .Select(cell =>
-                {
-                    var justRightFromCellLeftMargin = cell.Region.TotalDisplayRegion.X + 2;
-
-                    var matchingHeader = entriesHeaders
-                        .FirstOrDefault(header =>
-                        {
-                            var headerRegion = header.Region.TotalDisplayRegion;
-                            return headerRegion.X < justRightFromCellLeftMargin + 1 &&
-                                   justRightFromCellLeftMargin < headerRegion.X + headerRegion.Width - 1;
-                        });
-
-                    return matchingHeader != default
-                        ? (matchingHeader.Text, cell.Text)
-                        : ((string, string)?)null;
-                })
-                .Where(x => x.HasValue)
-                .Select(x => x!.Value)
-                .ToDictionary(x => x.Item1, x => x.Item2);
 
             var warpButton = scanResultNode
                 .ListDescendantsWithDisplayRegion()
                 .FirstOrDefault(node =>
                     node.GetTexturePathFromDictEntries()?.EndsWith("44_32_18.png") == true);
 
+            string? signal = null;
+            string? group = null;
+            if (warpButton == null)
+            {
+                signal = UIParser.GetDisplayText(detailsLeftToRight.Last());
+                group = detailsLeftToRight.Count == 5 ? UIParser.GetDisplayText(detailsLeftToRight[3]) : null;
+            }
+            else
+            {
+                group = detailsLeftToRight.Count == 4 ? UIParser.GetDisplayText(detailsLeftToRight[3]) : null;
+
+                // adjust the width of the scanResultNode to account for the warp button
+                scanResultNode.TotalDisplayRegionVisible = new DisplayRegion(
+                    scanResultNode.TotalDisplayRegionVisible.X,
+                    scanResultNode.TotalDisplayRegionVisible.Y,
+                    scanResultNode.TotalDisplayRegionVisible.Width - warpButton.TotalDisplayRegionVisible.Width,
+                    scanResultNode.TotalDisplayRegionVisible.Height
+                );
+            }
+
+            var distance = UIParser.GetDisplayText(detailsLeftToRight[0]);
+            var id = UIParser.GetDisplayText(detailsLeftToRight[1]);
+            var name = UIParser.GetDisplayText(detailsLeftToRight[2]);
+
             return new ProbeScanResult
             {
                 UiNode = scanResultNode,
-                TextsLeftToRight = textsLeftToRight,
-                CellsTexts = cellsTexts,
+                Distance = distance ?? "??",
+                ID = id ?? "??",
+                Name = name ?? "??",
+                Group = group,
+                Signal = signal,
                 WarpButton = warpButton
             };
         }
