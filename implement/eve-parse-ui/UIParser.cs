@@ -355,7 +355,8 @@ namespace eve_parse_ui
         private static bool NodeOccludesFollowingNodes(UITreeNode node)
         {
             // In Elm: nodeOccludesFollowingNodes = .pythonObjectTypeName >> (==) "EveWindow"
-            return node?.pythonObjectTypeName == "EveWindow";
+            return node?.pythonObjectTypeName == "Container" 
+                && node?.dictEntriesOfInterest.GetValueOrDefault("_name") as string == "content";
         }
 
         public static int CountDescendantsInUITreeNode(UITreeNode parent)
