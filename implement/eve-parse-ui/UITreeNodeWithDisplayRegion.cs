@@ -6,7 +6,7 @@ namespace eve_parse_ui
     {
         public required DisplayRegion SelfDisplayRegion { get; init; }
         public required DisplayRegion TotalDisplayRegion { get; init; }
-        public required DisplayRegion TotalDisplayRegionVisible { get; init; }
+        public required DisplayRegion TotalDisplayRegionVisible { get; set; }
 
         // constructor
         public UITreeNodeWithDisplayRegion(UITreeNode node) : base(node) {

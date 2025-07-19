@@ -61,9 +61,10 @@ namespace eve_parse_ui
             } else
             {
                 var totalDisplayRegion = new DisplayRegion(0, 0, selfDisplayRegion.Width, selfDisplayRegion.Height);
+                var visibleDisplayRegion = new DisplayRegion(0, 0, selfDisplayRegion.Width, selfDisplayRegion.Height);
                 var occludedRegions = new List<DisplayRegion>();
 
-                return AsUITreeNodeWithDisplayRegion(node, selfDisplayRegion, totalDisplayRegion, occludedRegions);
+                return AsUITreeNodeWithDisplayRegion(node, selfDisplayRegion, totalDisplayRegion, visibleDisplayRegion, occludedRegions);
             }
         }
 
@@ -71,6 +72,7 @@ namespace eve_parse_ui
             UITreeNode node,
             DisplayRegion selfDisplayRegion,
             DisplayRegion totalDisplayRegion,
+            DisplayRegion visibleDisplayRegion,
             List<DisplayRegion> occludedRegions
         )
         {
@@ -86,7 +88,7 @@ namespace eve_parse_ui
                 {
                     var childResult = AsChildOfNodeWithDisplayRegion(
                         child,
-                        new Location2d(totalDisplayRegion.X, totalDisplayRegion.Y),
+                        totalDisplayRegion,
                         currentOccludedRegions);
 
                     if (childResult == null) continue;
@@ -97,7 +99,7 @@ namespace eve_parse_ui
                     if (childResult is UITreeNodeWithDisplayRegion childWithRegion)
                     {
                         var occludingNodes = childWithRegion.ListDescendantsWithDisplayRegion()
-                            .Where(desc => NodeOccludesFollowingNodes(desc))
+                            .Where(NodeOccludesFollowingNodes)
                             .Select(desc => desc.TotalDisplayRegion);
 
                         currentOccludedRegions.AddRange(occludingNodes);
@@ -106,7 +108,7 @@ namespace eve_parse_ui
             }
 
             // Find the largest non-overlapping region
-            var totalDisplayRegionVisible = SubtractRegionsFromRegion(totalDisplayRegion, occludedRegions)
+            var totalDisplayRegionVisible = SubtractRegionsFromRegion(visibleDisplayRegion, occludedRegions)
                 .OrderByDescending(region => region.Width * region.Height)
                 .FirstOrDefault() ?? new DisplayRegion(-1, -1, 0, 0);
 
@@ -126,7 +128,7 @@ namespace eve_parse_ui
 
         private static UITreeNodeNoDisplayRegion? AsChildOfNodeWithDisplayRegion(
             UITreeNode node,
-            Location2d inheritedOffset, 
+            DisplayRegion parentDisplayRegion,
             List<DisplayRegion> occludedRegions
         )
         {
@@ -144,7 +146,7 @@ namespace eve_parse_ui
                 {
                     var childResult = AsChildOfNodeWithDisplayRegion(
                         child,
-                        new Location2d(inheritedOffset.X, inheritedOffset.Y),
+                        parentDisplayRegion,
                         childOccludedRegions
                     );
                     if (childResult == null) continue;
@@ -155,15 +157,26 @@ namespace eve_parse_ui
 
             // Calculate the total region by applying the inherited offset
             var totalRegion = new DisplayRegion(
-                inheritedOffset.X + selfRegion.X,
-                inheritedOffset.Y + selfRegion.Y,
+                parentDisplayRegion.X + selfRegion.X,
+                parentDisplayRegion.Y + selfRegion.Y,
                 selfRegion.Width,
                 selfRegion.Height);
+
+            // if totalRegion overextends the parent region, then clip it
+            var clippedX = Math.Max(parentDisplayRegion.X, totalRegion.X);
+            var clippedY = Math.Max(parentDisplayRegion.Y, totalRegion.Y);
+            var regionVisible = new DisplayRegion(
+                clippedX,
+                clippedY,
+                Math.Min(totalRegion.Width, parentDisplayRegion.X + parentDisplayRegion.Width - clippedX),
+                Math.Min(totalRegion.Height, parentDisplayRegion.Y + parentDisplayRegion.Height - clippedY)
+            );
 
             return AsUITreeNodeWithDisplayRegion(
                 node,
                 selfRegion,
                 totalRegion,
+                regionVisible,
                 childOccludedRegions);
         }
 
