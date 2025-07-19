@@ -42,7 +42,8 @@ namespace eve_parse_ui
                     ExpandedUtilMenu = ExpandedUtilMenuParser.ParseExpandedUtilMenuFromUITreeRoot(uiTreeRootWithDisplayRegion),
                     ListWindows = ListWindowsParser.ParseListWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
                     CharacterSelectionScreen = CharacterSelectionParser.ParseCharacterSelectionFromUITreeRoot(uiTreeRootWithDisplayRegion),
-                    StandaloneBookmarkWindow = StandaloneBookmarkWindowParser.ParseStandaloneBookmarkWindowFromUITreeRoot(uiTreeRootWithDisplayRegion)                        ,
+                    StandaloneBookmarkWindow = StandaloneBookmarkWindowParser.ParseStandaloneBookmarkWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    DailyLoginRewardsWindow = DailyLoginRewardsParser.ParseDailyLoginRewardsWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
                 };
         }
 

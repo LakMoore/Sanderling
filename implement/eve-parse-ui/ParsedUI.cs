@@ -44,6 +44,7 @@ namespace eve_parse_ui
         public required IReadOnlyList<ListWindow> ListWindows { get; init; }
         public CharacterSelectionScreen? CharacterSelectionScreen { get; init; }
         public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
+        public DailyLoginRewardsWindow? DailyLoginRewardsWindow { get; init; }
     }
 
     public record DisplayRegion(int X, int Y, int Width, int Height)
