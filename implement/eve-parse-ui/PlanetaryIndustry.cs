@@ -17,6 +17,7 @@
         public required string Name { get; init; }
         public required bool IsSelected { get; init; }
         public UITreeNodeWithDisplayRegion? RestartExtractionButton { get; init; }
+        public required bool RequiresAttention { get; init; }
     }
 
     public record PlanetaryImportExportUI
