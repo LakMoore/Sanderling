@@ -75,17 +75,13 @@ namespace eve_parse_ui
                 return null;
             }
 
-            var scrollControls = listWindow
-                .GetDescendantsByType("ScrollControls")
-                .FirstOrDefault();
-
             return new ListWindow()
             {
                 UiNode = listWindow,
                 CollapseAllButton = collapseAllButton,
                 ListGroups = listGroups,
                 CloseButton = closeButton,
-                ScrollBar = UIParser.ParseScrollBar(scrollControls)
+                ScrollingPanel = UIParser.ParseScrollingPanel(listWindow)
             };
         }
 

@@ -6,18 +6,18 @@ namespace eve_parse_ui
     public record ParsedUserInterface
     {
         public required UITreeNodeWithDisplayRegion UiTree { get; init; }
-        public required IReadOnlyList<ContextMenu> ContextMenus { get; init; }
+        public required IEnumerable<ContextMenu> ContextMenus { get; init; }
         public ShipUI? ShipUI { get; init; }
-        public required IReadOnlyList<Target> Targets { get; init; }
+        public required IEnumerable<Target> Targets { get; init; }
         public InfoPanelContainer? InfoPanelContainer { get; init; }
-        public required IReadOnlyList<OverviewWindow> OverviewWindows { get; init; }
+        public required IEnumerable<OverviewWindow> OverviewWindows { get; init; }
         public SelectedItemWindow? SelectedItemWindow { get; init; }
         public DronesWindow? DronesWindow { get; init; }
         //public FittingWindow? FittingWindow { get; init; }
         public ProbeScannerWindow? ProbeScannerWindow { get; init; }
         //public DirectionalScannerWindow? DirectionalScannerWindow { get; init; }
         public StationWindow? StationWindow { get; init; }
-        public required IReadOnlyList<InventoryWindow> InventoryWindows { get; init; }
+        public required IEnumerable<InventoryWindow> InventoryWindows { get; init; }
         //public required IReadOnlyList<ChatWindowStack> ChatWindowStacks { get; init; }
         //public required IReadOnlyList<AgentConversationWindow> AgentConversationWindows { get; init; }
         //public MarketOrdersWindow? MarketOrdersWindow { get; init; }
@@ -32,7 +32,7 @@ namespace eve_parse_ui
         //public ModuleButtonTooltip? ModuleButtonTooltip { get; init; }
         //public HeatStatusTooltip? HeatStatusTooltip { get; init; }
         public Neocom? Neocom { get; init; }
-        public required IReadOnlyList<MessageBox> MessageBoxes { get; init; }
+        public required IEnumerable<MessageBox> MessageBoxes { get; init; }
         public LayerAboveMain? LayerAboveMain { get; init; }
         //public KeyActivationWindow? KeyActivationWindow { get; init; }
         //public CompressionWindow? CompressionWindow { get; init; }
@@ -41,10 +41,12 @@ namespace eve_parse_ui
         public SessionTimeIndicator? SessionTimeIndicator { get; init; }
         public QuantityModal? QuantityModal { get; init; }
         public ExpandedUtilMenu? ExpandedUtilMenu { get; init; }
-        public required IReadOnlyList<ListWindow> ListWindows { get; init; }
+        public required IEnumerable<ListWindow> ListWindows { get; init; }
         public CharacterSelectionScreen? CharacterSelectionScreen { get; init; }
         public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
         public DailyLoginRewardsWindow? DailyLoginRewardsWindow { get; init; }
+        public required IEnumerable<InfoWindow> InfoWindows { get; init; }
+
     }
 
     public record DisplayRegion(int X, int Y, int Width, int Height)
@@ -89,10 +91,10 @@ namespace eve_parse_ui
         public required IReadOnlyList<string> Tabs { get; init; }
         public required IReadOnlyList<DisplayTextWithRegion> EntriesHeader { get; init; }
         public required IReadOnlyList<OverviewWindowEntry> Entries { get; init; }
-        public required ScrollBar? ScrollBar { get; init; }
+        public required ScrollingPanel? ScrollingPanel { get; init; }
     }
 
-    public record ScrollBar
+    public record ScrollingPanel
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; set; }
         public UITreeNodeWithDisplayRegion? ScrollHandle { get; set; }
@@ -226,20 +228,21 @@ namespace eve_parse_ui
         public required Inventory SelectedInventory { get; init; }
         public UITreeNodeWithDisplayRegion? ButtonToSwitchToListView { get; init; }
         public UITreeNodeWithDisplayRegion? ButtonToStackAll { get; init; }
+        public required UITreeNodeWithDisplayRegion FilterTextBox { get; init; }
     }
 
     public record LeftTreePanel
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<InventoryWindowLeftTreeEntry> Entries { get; init; }
-        public ScrollBar? ScrollBar { get; init; }
+        public ScrollingPanel? ScrollingPanel { get; init; }
     }
 
     public record Inventory
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<InventoryItem> Items { get; init; }
-        public ScrollBar? ScrollBar { get; init; }
+        public ScrollingPanel? ScrollingPanel { get; init; }
     }
 
     public record InventoryWindowLeftTreeEntry
@@ -284,7 +287,7 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required IReadOnlyList<ChatUserEntry> VisibleUsers { get; init; }
-        public ScrollBar? ScrollControls { get; init; }
+        public ScrollingPanel? ScrollingPanel { get; init; }
     }
 
     public record ChatUserEntry
@@ -356,7 +359,7 @@ namespace eve_parse_ui
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required UITreeNodeWithDisplayRegion? SearchTextbox { get; init; }
         public required IReadOnlyList<UITreeNodeWithDisplayRegion> Entries { get; init; }
-        public ScrollBar? ScrollBar { get; init; }
+        public ScrollingPanel? ScrollingPanel { get; init; }
     }
 
     // ==== Ship UI ====
@@ -480,7 +483,7 @@ namespace eve_parse_ui
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
         public required List<ProbeScanResult> ScanResults { get; init; }
-        public ScrollBar? ScrollBar { get; init; }
+        public ScrollingPanel? ScrollingPanel { get; init; }
     }
 
     public record ProbeScanResult

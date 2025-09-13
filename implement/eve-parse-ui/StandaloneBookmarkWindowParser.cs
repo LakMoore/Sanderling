@@ -29,7 +29,7 @@ namespace eve_parse_ui
                 UiNode = standaloneBookmarkWindowNode,
                 SearchTextbox = searchTextbox,
                 Entries = entries,
-                ScrollBar = UIParser.ParseScrollBar(standaloneBookmarkWindowNode),
+                ScrollingPanel = UIParser.ParseScrollingPanel(standaloneBookmarkWindowNode),
             };
         }
     }

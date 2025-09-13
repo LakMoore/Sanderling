@@ -62,7 +62,12 @@ namespace eve_parse_ui
                 .Where(uiNode => uiNode.GetNameFromDictEntries()?.Equals("tree", StringComparison.CurrentCultureIgnoreCase) == true)
                 .FirstOrDefault();
 
-            if (rightContainerNode == null || leftContainer == null)
+            var filterTextBox = windowUiNode
+                .GetDescendantsByType("SingleLineEditText")
+                .Where(uiNode => uiNode.GetNameFromDictEntries()?.Equals("quickFilterInputBox", StringComparison.CurrentCultureIgnoreCase) == true)
+                .FirstOrDefault();
+
+            if (rightContainerNode == null || leftContainer == null || filterTextBox == null)
             {
                 Debug.Fail("rightContainerNode is null");
                 return null;
@@ -90,6 +95,7 @@ namespace eve_parse_ui
             {
                 UiNode = windowUiNode,
                 WindowCaption = windowCaption ?? "Unknown window caption",
+                FilterTextBox = filterTextBox,
                 LeftTreePanel = ParseLeftTreePanel(leftContainer),
                 SubCaptionLabelText = subCaptionLabelText,
                 SelectedContainerCapacityGauge = selectedContainerCapacityGauge,
@@ -110,7 +116,7 @@ namespace eve_parse_ui
             {
                 UiNode = leftPanel,
                 Entries = leftTreeEntries,
-                ScrollBar = UIParser.ParseScrollBar(leftPanel)
+                ScrollingPanel = UIParser.ParseScrollingPanel(leftPanel)
             };
         }
 
@@ -160,7 +166,7 @@ namespace eve_parse_ui
                 {
                     UiNode = item.Region,
                     Name = match.Groups[1].Value.Trim(),
-                    Quantity = int.Parse(match.Groups[2].Value.Trim()),
+                    Quantity = int.Parse(match.Groups[2].Value.Replace(",", "").Trim()),
                 };
             }
 
@@ -182,15 +188,11 @@ namespace eve_parse_ui
                 .GetDescendantsByType("InvItem")
                 .Select(ParseInventoryItemIcon);
 
-            var scrollNode = inventoryNode
-                .ListDescendantsWithDisplayRegion()
-                .FirstOrDefault(node => (node.pythonObjectTypeName ?? string.Empty).Contains("scroll", StringComparison.CurrentCultureIgnoreCase));
-
             return new Inventory
             {
                 UiNode = inventoryNode,
                 Items = [.. items, .. invItems],
-                ScrollBar = UIParser.ParseScrollBar(scrollNode)
+                ScrollingPanel = UIParser.ParseScrollingPanel(inventoryNode)
             };
         }
 

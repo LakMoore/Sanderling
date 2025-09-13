@@ -3,7 +3,7 @@
     public record ExpandedUtilMenu
     {
         public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-        public required UITreeNodeWithDisplayRegion SearchBox { get; init; }
-        public required UITreeNodeWithDisplayRegion SearchButton { get; init; }
+        public UITreeNodeWithDisplayRegion? SearchBox { get; init; }
+        public UITreeNodeWithDisplayRegion? SearchButton { get; init; }
     }
 }

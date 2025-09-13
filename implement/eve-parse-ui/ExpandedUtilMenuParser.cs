@@ -29,8 +29,9 @@ namespace eve_parse_ui
 
             if (searchBox == null || searchButton == null)
             {
-                Debug.Fail("Found a menu but not the components!");
-                return null;
+                // Ship fitting inventory tooltip doesn't have a searchbox
+                // Debug.Fail("Found a menu but not the components!");
+                // return null;
             }
 
             return new ExpandedUtilMenu()

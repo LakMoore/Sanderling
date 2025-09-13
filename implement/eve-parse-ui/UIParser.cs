@@ -44,6 +44,7 @@ namespace eve_parse_ui
                     CharacterSelectionScreen = CharacterSelectionParser.ParseCharacterSelectionFromUITreeRoot(uiTreeRootWithDisplayRegion),
                     StandaloneBookmarkWindow = StandaloneBookmarkWindowParser.ParseStandaloneBookmarkWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
                     DailyLoginRewardsWindow = DailyLoginRewardsParser.ParseDailyLoginRewardsWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
+                    InfoWindows = InfoWindowParser.ParseInfoWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
                 };
         }
 
@@ -365,11 +366,13 @@ namespace eve_parse_ui
             return 1.0;
         }
 
+        private static readonly List<string> clippingContainers = ["content", "clipCont"];
+
         private static bool NodeOccludesFollowingNodes(UITreeNode node)
         {
             // In Elm: nodeOccludesFollowingNodes = .pythonObjectTypeName >> (==) "EveWindow"
-            return node?.pythonObjectTypeName == "Container" 
-                && node?.dictEntriesOfInterest.GetValueOrDefault("_name") as string == "content";
+            return node?.pythonObjectTypeName == "Container"
+                && clippingContainers.Contains(node?.dictEntriesOfInterest.GetValueOrDefault("_name") as string ?? "");
         }
 
         public static int CountDescendantsInUITreeNode(UITreeNode parent)
@@ -577,23 +580,28 @@ namespace eve_parse_ui
                 .FirstOrDefault();
         }
 
-        public static ScrollBar? ParseScrollBar(UITreeNodeWithDisplayRegion? controlRootNode)
+        public static ScrollingPanel? ParseScrollingPanel(UITreeNodeWithDisplayRegion? controlRootNode)
         {
             if (controlRootNode == null)
                 return null;
 
-            var scrollBar = controlRootNode.pythonObjectTypeName == "Scrollbar"
+            var scrollNode = controlRootNode.pythonObjectTypeName.Contains("scroll", StringComparison.CurrentCultureIgnoreCase)
                 ? controlRootNode
-                : controlRootNode.GetDescendantsByType("Scrollbar").FirstOrDefault();
+                : controlRootNode
+                    .ListDescendantsWithDisplayRegion()
+                    .FirstOrDefault(node => (node.pythonObjectTypeName ?? string.Empty).Contains("scroll", StringComparison.CurrentCultureIgnoreCase));
 
-            if (scrollBar == null)
-                return null;
-
-            var scrollHandle = scrollBar.GetDescendantsByType("ScrollHandle").FirstOrDefault();
-
-            return new ScrollBar
+            if (scrollNode == null)
             {
-                UiNode = scrollBar,
+                // panel does not currently over-flow!
+                return null;
+            }
+
+            var scrollHandle = scrollNode.GetDescendantsByType("ScrollHandle").FirstOrDefault();
+
+            return new ScrollingPanel
+            {
+                UiNode = scrollNode,
                 ScrollHandle = scrollHandle
             };
         }

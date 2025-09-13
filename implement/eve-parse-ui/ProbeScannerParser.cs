@@ -18,7 +18,7 @@
             {
                 UiNode = windowNode,
                 ScanResults = scanResults,
-                ScrollBar = UIParser.ParseScrollBar(windowNode)
+                ScrollingPanel = UIParser.ParseScrollingPanel(windowNode)
             };
         }
 

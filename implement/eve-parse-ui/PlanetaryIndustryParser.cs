@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace eve_parse_ui
@@ -36,7 +37,7 @@ namespace eve_parse_ui
             {
                 UiNode = planetWindow,
                 Colonies = ParseColonies(planetWindow),
-                ScrollBar = UIParser.ParseScrollBar(planetWindow),
+                ScrollingPanel = UIParser.ParseScrollingPanel(planetWindow),
                 ViewButton = viewButton,
                 WarpToButton = warpToButton,
                 AccessButton = accessButton
@@ -49,51 +50,73 @@ namespace eve_parse_ui
                 .GetDescendantsByType("ColonyEntry")
                 .Select(entry =>
                 {
-                var caption = entry
-                    .GetDescendantsByName("captionCont")
-                    .FirstOrDefault()?
-                    .GetAllContainedDisplayTextsWithRegion()?
-                    .FirstOrDefault()?.Text;
+                    var caption = entry
+                        .GetDescendantsByName("captionCont")
+                        .FirstOrDefault()?
+                        .GetAllContainedDisplayTextsWithRegion()?
+                        .FirstOrDefault()?.Text;
 
-                // fallback to full value
-                var name = caption;
+                    // fallback to full value
+                    var name = caption;
 
-                // <color=0xFF8D3264>-1.0%</color> J121006 II - Barren - 15 installations
-                // extract the name from the caption
-                var regex = Regex.Match(caption ?? "", @"<color(.*?)</color>(.*)");
-                if (regex.Success && regex.Groups.Count == 3)
-                {
-                    name = regex.Groups[2].Value.Trim();
-                }
+                    // <color=0xFF8D3264>-1.0%</color> J121006 II - Barren - 15 installations
+                    // extract the name from the caption
+                    var regex = Regex.Match(caption ?? "", @"<color(.*?)</color>(.*)");
+                    if (regex.Success && regex.Groups.Count == 3)
+                    {
+                        name = regex.Groups[2].Value.Trim();
+                    }
 
-                if (name?.Contains(" - ") == true)
-                {
-                    var splits = name.Split(" - ");
-                    name = splits[0];
-                }
+                    if (name?.Contains(" - ") == true)
+                    {
+                        var splits = name.Split(" - ");
+                        name = splits[0];
+                    }
 
-                var isSelected = entry.GetFromDict<bool>("isSelected");
+                    var isSelected = entry.GetFromDict<bool>("isSelected");
 
-                var restartExtractionButton = entry
-                    .GetDescendantsByType("Button")
-                    .FirstOrDefault(button =>
-                        button.GetNameFromDictEntries()?
-                        .Equals("restartExtraction", StringComparison.CurrentCultureIgnoreCase) ?? false
-                    );
+                    var mainIcon = entry
+                        .GetDescendantsByType("Container")
+                        .FirstOrDefault(sprite =>
+                            sprite.GetNameFromDictEntries()?
+                            .Equals("iconCont", StringComparison.CurrentCultureIgnoreCase) ?? false
+                        );
 
-                var requiresAttention = entry
-                    .GetDescendantsByType("Container")
-                    .Select(UIParser.GetHintTextFromDictEntries)
-                    .FirstOrDefault(hint => 
-                        hint?.Equals("One or more facility requires attention", StringComparison.CurrentCultureIgnoreCase) == true)
-                    != null;
+                    Debug.Assert(mainIcon != null);
+
+                    var restartExtractionButton = entry
+                        .GetDescendantsByType("Button")
+                        .FirstOrDefault(button =>
+                            button.GetNameFromDictEntries()?
+                            .Equals("restartExtraction", StringComparison.CurrentCultureIgnoreCase) ?? false
+                        );
+
+                    var requiresAttention = entry
+                        .GetDescendantsByType("Container")
+                        .Select(UIParser.GetHintTextFromDictEntries)
+                        .FirstOrDefault(hint => 
+                            hint?.Equals("One or more facility requires attention", StringComparison.CurrentCultureIgnoreCase) == true)
+                        != null;
+
+                    var piItems = entry
+                        .GetDescendantsByType("ContainerAutoSize")
+                        .Where(container => container.GetNameFromDictEntries()?.Equals("topRowCont", StringComparison.CurrentCultureIgnoreCase) == true)
+                        .SelectMany(container => container.GetDescendantsByType("StorageIcon"))
+                        .Select(icon => icon.GetFromDict<int>("typeID"))
+                        .Select(typeid => new PIItem() { 
+                            TypeId = typeid, 
+                            TierIndex = 0 
+                        })
+                        .ToList() ?? [];
 
                     return new Colony() {
                         UiNode = entry,
                         Name = name ?? "Unknown Colony",
                         IsSelected = isSelected,
+                        MainIcon = mainIcon,
                         RequiresAttention = requiresAttention,
-                        RestartExtractionButton = restartExtractionButton
+                        RestartExtractionButton = restartExtractionButton,
+                        PIItems = piItems
                     };
                 })
                 .ToList();
