@@ -1,48 +1,49 @@
 ﻿
 namespace eve_parse_ui
 {
-    public static class QuantityModalParser
+  public static class QuantityModalParser
+  {
+    public static QuantityModal? ParseQuantityModalFromUITreeRoot(UITreeNodeNoDisplayRegion uiTreeRootWithDisplayRegion)
     {
-        public static QuantityModal? ParseQuantityModalFromUITreeRoot(UITreeNodeNoDisplayRegion uiTreeRootWithDisplayRegion)
-        {
-            var quantityModal = uiTreeRootWithDisplayRegion
-                .GetDescendantsByType("Container")
-                .Where(n => n.GetNameFromDictEntries()?.StartsWith("l_modal_") == true)
-                .FirstOrDefault();
-            
-            if (quantityModal == null)
-                return null;
-            
-            var textbox = quantityModal
-                .GetDescendantsByType("SingleLineEditInteger")
-                .FirstOrDefault();
+      var quantityModal = uiTreeRootWithDisplayRegion
+          .GetDescendantsByType("Container")
+          .Where(n => n.GetNameFromDictEntries()?.StartsWith("l_modal_") == true)
+          .FirstOrDefault();
 
-            if (textbox == null)
-                return null;
+      if (quantityModal == null)
+        return null;
 
-            var title = quantityModal
-                .GetDescendantsByType("WindowCaption")
-                .SelectMany(UIParser.GetAllContainedDisplayTexts)
-                .FirstOrDefault();
+      var textbox = quantityModal
+          .GetDescendantsByType("SingleLineEditInteger")
+          .FirstOrDefault();
 
-            var okButton = quantityModal
-                .GetDescendantsByType("Button")
-                .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("ok_dialog_button") == true);
-            
-            var cancelButton = quantityModal
-                .GetDescendantsByType("Button")
-                .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("cancel_dialog_button") == true);
+      if (textbox == null)
+        return null;
 
-            if (okButton == null || cancelButton == null)
-                return null;
+      var title = quantityModal
+          .GetDescendantsByType("WindowCaption")
+          .SelectMany(UIParser.GetAllContainedDisplayTexts)
+          .FirstOrDefault();
 
-            return new QuantityModal() { 
-                UiNode = quantityModal,
-                Textbox = textbox,
-                Title = title ?? "Unknown Title",
-                OkButton = okButton,
-                CancelButton = cancelButton
-            };
-        }
+      var okButton = quantityModal
+          .GetDescendantsByType("Button")
+          .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("ok_dialog_button") == true);
+
+      var cancelButton = quantityModal
+          .GetDescendantsByType("Button")
+          .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("cancel_dialog_button") == true);
+
+      if (okButton == null || cancelButton == null)
+        return null;
+
+      return new QuantityModal()
+      {
+        UiNode = quantityModal,
+        Textbox = textbox,
+        Title = title ?? "Unknown Title",
+        OkButton = okButton,
+        CancelButton = cancelButton
+      };
     }
+  }
 }

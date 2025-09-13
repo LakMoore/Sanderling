@@ -1,16 +1,16 @@
 ﻿
 namespace eve_parse_ui
 {
-    internal class InfoWindowParser
+  internal class InfoWindowParser
+  {
+    internal static IEnumerable<InfoWindow> ParseInfoWindowsFromUITreeRoot(UITreeNodeWithDisplayRegion rootNode)
     {
-        internal static IEnumerable<InfoWindow> ParseInfoWindowsFromUITreeRoot(UITreeNodeWithDisplayRegion rootNode)
-        {
-            return rootNode
-                .GetDescendantsByType("InfoWindow")
-                .Select(w => new InfoWindow()
-                { 
-                    UiNode = w 
-                });
-        }
+      return rootNode
+          .GetDescendantsByType("InfoWindow")
+          .Select(w => new InfoWindow()
+          {
+            UiNode = w
+          });
     }
+  }
 }
