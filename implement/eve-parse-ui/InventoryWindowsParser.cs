@@ -8,7 +8,7 @@ namespace eve_parse_ui
 {
   public static class InventoryWindowsParser
   {
-    private static readonly string[] inventoryWindowTypes = ["InventoryPrimary", "Inventory", "ActiveShipCargo"];
+    private static readonly string[] inventoryWindowTypes = ["InventoryPrimary", "StationItems", "Inventory", "ActiveShipCargo", "StationCorpDeliveries", "StationShips"];
     private static readonly string[] shipInventories =
         [
             "ShipCargo", "ShipDroneBay", "ShipGeneralMiningHold",
