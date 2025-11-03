@@ -15,11 +15,15 @@
         return null;
       }
 
+      var abortUndock = 
+        UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "abort undock") 
+        ?? UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "undocking");
+
       StationWindow window = new()
       {
         UiNode = lobbyWindowNode,
         UndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "undock"),
-        AbortUndockButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "abort undock"),
+        AbortUndockButton = abortUndock,
         DockedModeButton = UIParser.FindButtonInDescendantsContainingDisplayText(lobbyWindowNode, "view"),
       };
 
