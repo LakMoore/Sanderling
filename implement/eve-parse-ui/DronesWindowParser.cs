@@ -180,9 +180,10 @@ namespace eve_parse_ui
                gaugeBar.TotalDisplayRegion.Width;
       }
 
-      var shieldPercent = GaugeValuePercentFromContainerName("gauge_shield");
-      var armorPercent = GaugeValuePercentFromContainerName("gauge_armor");
-      var structPercent = GaugeValuePercentFromContainerName("gauge_struct");
+      // Gauge is incorrectly spelt in the client - CCP Interns!
+      var shieldPercent = GaugeValuePercentFromContainerName("shieldGauge");
+      var armorPercent = GaugeValuePercentFromContainerName("armorGauge");
+      var structPercent = GaugeValuePercentFromContainerName("structGauge");
 
       Hitpoints? hitpointsPercent = null;
       if (shieldPercent.HasValue && armorPercent.HasValue && structPercent.HasValue)
