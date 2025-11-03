@@ -45,6 +45,7 @@ namespace eve_parse_ui
         StandaloneBookmarkWindow = StandaloneBookmarkWindowParser.ParseStandaloneBookmarkWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
         DailyLoginRewardsWindow = DailyLoginRewardsParser.ParseDailyLoginRewardsWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
         InfoWindows = InfoWindowParser.ParseInfoWindowsFromUITreeRoot(uiTreeRootWithDisplayRegion),
+        AssetsWindow = AssetsWindowParser.ParseAssetsWindowFromUITreeRoot(uiTreeRootWithDisplayRegion),
       };
     }
 

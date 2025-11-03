@@ -7,6 +7,14 @@ namespace eve_parse_ui
   {
     public static ShipUI? ParseShipUIFromUITreeRoot(UITreeNodeNoDisplayRegion uiTreeRoot)
     {
+      var invulnTimer = uiTreeRoot
+        .GetDescendantsByType("SidePanels")
+        .FirstOrDefault()?
+        .GetDescendantsByType("TimerContainer")
+        .FirstOrDefault()?
+        .GetDescendantsByType("Timer")
+        .FirstOrDefault();
+
       // Find ShipUI node
       var thisUINode = uiTreeRoot
           .ListDescendantsInUITreeNode()
@@ -131,7 +139,8 @@ namespace eve_parse_ui
         StopButton = stopButton,
         CurrentSpeed = speed,
         MaxSpeedButton = maxSpeedButton,
-        HeatGauges = heatGauges
+        HeatGauges = heatGauges,
+        IsInvulnerable = invulnTimer != null
       };
     }
 
@@ -167,6 +176,17 @@ namespace eve_parse_ui
           .Where(node => node.GetNameFromDictEntries() == "glow")
           .FirstOrDefault();
 
+      var isOnCooldown = false;
+      var reactivationTimer = slotNode.GetDescendantsByType("ShipModuleReactivationTimer").FirstOrDefault();
+      if (reactivationTimer != null)
+      {
+        var endTimeExists = reactivationTimer.dictEntriesOfInterest.GetValueOrDefault("endTime");
+        if (endTimeExists != null)
+        {
+          isOnCooldown = true;
+        }
+      }
+
       return new ShipUIModuleButton
       {
         UiNode = moduleButtonNode,
@@ -189,6 +209,7 @@ namespace eve_parse_ui
         Quantity = moduleButtonNode.GetFromDict<int>("quantity"),
         IsDeactivating = moduleButtonNode.GetFromDict<bool>("isDeactivating"),
         SlotName = slotNode.GetNameFromDictEntries(),
+        IsOnCooldown = isOnCooldown
       };
     }
 
@@ -318,21 +339,24 @@ namespace eve_parse_ui
 
       var maneuverPatterns = new Dictionary<string, ShipManeuverType>
             {
-                { "Warp", ShipManeuverType.ManeuverWarp },
-                { "Jump", ShipManeuverType.ManeuverJump },
-                { "Orbit", ShipManeuverType.ManeuverOrbit },
-                { "Approach", ShipManeuverType.ManeuverApproach },
-                { "Align", ShipManeuverType.ManeuverAlign },
+                { "Establishing Warp Vector", ShipManeuverType.ManeuverWarp },
+                { "Warp Drive Active", ShipManeuverType.ManeuverWarp },
+                { "Jumping", ShipManeuverType.ManeuverJump },
+                { "Orbiting", ShipManeuverType.ManeuverOrbit },
+                { "Approaching", ShipManeuverType.ManeuverApproach },
+                { "Aligning", ShipManeuverType.ManeuverAlign },
                 { "Docking", ShipManeuverType.ManeuverDock },
                 { "워프 드라이브 가동", ShipManeuverType.ManeuverWarp }, // Korean for "Warp Drive Active"
                 { "점프 중", ShipManeuverType.ManeuverJump } // Korean for "Jumping"
             };
 
       var maneuverType = maneuverPatterns
-          .Where(pair => displayTexts.Any(text => text.Contains(pair.Key, StringComparison.OrdinalIgnoreCase)))
-          .Select(pair => pair.Value)
-          .Cast<ShipManeuverType?>()
-          .FirstOrDefault();
+        .Where(pair => displayTexts.Any(text => 
+          text.Contains(pair.Key, StringComparison.CurrentCultureIgnoreCase))
+        )
+        .Select(pair => pair.Value)
+        .Cast<ShipManeuverType?>()
+        .FirstOrDefault();
 
       return new ShipUIIndication
       {

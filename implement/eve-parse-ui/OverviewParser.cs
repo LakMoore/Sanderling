@@ -17,8 +17,15 @@ namespace eve_parse_ui
 
     private static OverviewWindow? ParseOverviewWindow(UITreeNodeWithDisplayRegion overviewWindowNode)
     {
-
       var selectionIndicatorLine = overviewWindowNode.GetDescendantsByType("SelectionIndicatorLine").FirstOrDefault();
+
+      var minimiseButton = overviewWindowNode
+        .GetDescendantsByType("WindowControls")
+        .FirstOrDefault()?
+        .GetDescendantsByType("WindowControlButton")
+        .FirstOrDefault()?
+        .GetDescendantsByName("MinimizeButtonIcon")
+        .FirstOrDefault();
 
       var overviewTabs = overviewWindowNode.ListDescendantsWithDisplayRegion()
           .Where(n => n.pythonObjectTypeName.Equals("OverviewTab", StringComparison.CurrentCultureIgnoreCase));
@@ -46,13 +53,13 @@ namespace eve_parse_ui
 
       var entries = overviewWindowNode.ListDescendantsWithDisplayRegion()
           .Where(n => n.pythonObjectTypeName.Equals("OverviewScrollEntry"))
-          .Select(n => ParseOverviewWindowEntry(entriesHeader, n))
-          .ToList();
+          .Select(n => ParseOverviewWindowEntry(entriesHeader, n));
 
       return new OverviewWindow
       {
         UiNode = overviewWindowNode,
         OverviewTabName = overviewTabText?.Text ?? "NoName",
+        MinimiseButton = minimiseButton,
         EntriesHeader = entriesHeader,
         Entries = entries,
         Tabs = overviewTabsTexts,

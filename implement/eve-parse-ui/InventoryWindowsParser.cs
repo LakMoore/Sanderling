@@ -109,8 +109,7 @@ namespace eve_parse_ui
     {
       var leftTreeEntriesRootNodes = GetContainedTreeViewEntryRootNodes(leftPanel);
       var leftTreeEntries = leftTreeEntriesRootNodes
-          .Select(ParseInventoryWindowTreeViewEntry)
-          .ToList();
+          .Select(ParseInventoryWindowTreeViewEntry);
 
       return new LeftTreePanel()
       {

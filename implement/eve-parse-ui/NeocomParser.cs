@@ -29,6 +29,10 @@ namespace eve_parse_ui
           .Where(w => w.GetNameFromDictEntries()?.Equals("planets", StringComparison.CurrentCultureIgnoreCase) == true)
           .FirstOrDefault();
 
+      var assetsButton = windows
+          .Where(w => w.GetNameFromDictEntries()?.Equals("assets", StringComparison.CurrentCultureIgnoreCase) == true)
+          .FirstOrDefault();
+
       var clock = neocomNode
           .GetDescendantsByType("ClockButton")
           .FirstOrDefault();
@@ -56,6 +60,7 @@ namespace eve_parse_ui
         UiNode = neocomNode,
         EveMenuButton = eveMenuButton,
         InventoryButton = inventory,
+        AssetsButton = assetsButton,
         PlanetaryIndustryButton = pi,
         PanelGroups = panelGroups,
         PanelCommands = panelCommands,

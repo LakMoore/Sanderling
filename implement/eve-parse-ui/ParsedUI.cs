@@ -45,7 +45,7 @@ namespace eve_parse_ui
     public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
     public DailyLoginRewardsWindow? DailyLoginRewardsWindow { get; init; }
     public required IEnumerable<InfoWindow> InfoWindows { get; init; }
-
+    public AssetsWindow? AssetsWindow { get; init; }
   }
 
   public record DisplayRegion(int X, int Y, int Width, int Height)
@@ -87,9 +87,10 @@ namespace eve_parse_ui
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public required string OverviewTabName { get; init; }
+    public UITreeNodeWithDisplayRegion? MinimiseButton { get; init; }
     public required IReadOnlyList<string> Tabs { get; init; }
     public required IReadOnlyList<DisplayTextWithRegion> EntriesHeader { get; init; }
-    public required IReadOnlyList<OverviewWindowEntry> Entries { get; init; }
+    public required IEnumerable<OverviewWindowEntry> Entries { get; init; }
     public required ScrollingPanel? ScrollingPanel { get; init; }
   }
 
@@ -233,7 +234,7 @@ namespace eve_parse_ui
   public record LeftTreePanel
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<InventoryWindowLeftTreeEntry> Entries { get; init; }
+    public required IEnumerable<InventoryWindowLeftTreeEntry> Entries { get; init; }
     public ScrollingPanel? ScrollingPanel { get; init; }
   }
 
@@ -377,6 +378,7 @@ namespace eve_parse_ui
     public int CurrentSpeed { get; init; }
     public UITreeNodeWithDisplayRegion? MaxSpeedButton { get; init; }
     public ShipUIHeatGauges? HeatGauges { get; init; }
+    public required bool IsInvulnerable { get; init; }
   }
 
   public record ShipUIIndication
@@ -399,6 +401,7 @@ namespace eve_parse_ui
     public int? Quantity { get; init; }
     public bool? IsDeactivating { get; init; }
     public string? SlotName { get; init; }
+    public required bool IsOnCooldown { get; init; }
   }
 
   public record ShipUICapacitor
@@ -436,6 +439,7 @@ namespace eve_parse_ui
 
   public enum ShipManeuverType
   {
+    ManeuverUnknown,
     ManeuverWarp,
     ManeuverJump,
     ManeuverOrbit,

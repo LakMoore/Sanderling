@@ -331,6 +331,7 @@ class Program
     return pixels;
   }
 
+
   //  https://github.com/Viir/bots/blob/225c680115328d9ba0223760cec85d56f2ea9a87/implement/templates/locate-object-in-window/src/BotEngine/VolatileHostWindowsApi.elm#L535-L557
   static public System.Drawing.Bitmap GetScreenshotOfWindowAsBitmap(IntPtr windowHandle)
   {
@@ -704,7 +705,7 @@ public class EveOnline64
       "_lastValue",
 
       //  Found in "ModuleButton"
-      "ramp_active",
+      "ramp_active", "end", "endTime",
 
       //  Found in the Transforms contained in "ShipModuleButtonRamps"
       "_rotation",

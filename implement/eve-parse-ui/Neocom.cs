@@ -7,6 +7,7 @@
     public UITreeNodeWithDisplayRegion? EveMenuButton { get; init; }
 
     public UITreeNodeWithDisplayRegion? InventoryButton { get; init; }
+    public UITreeNodeWithDisplayRegion? AssetsButton { get; init; }
     public UITreeNodeWithDisplayRegion? PlanetaryIndustryButton { get; init; }
     public IReadOnlyList<NeocomPanelItem>? PanelGroups { get; init; }
     public IReadOnlyList<NeocomPanelItem>? PanelCommands { get; init; }
