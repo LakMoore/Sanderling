@@ -69,7 +69,7 @@ namespace eve_parse_ui
 
       if (rightContainerNode == null || leftContainer == null || filterTextBox == null)
       {
-        Debug.Fail("rightContainerNode is null");
+        Debug.WriteLine("rightContainerNode is null");
         return null;
       }
 

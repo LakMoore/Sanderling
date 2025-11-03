@@ -57,8 +57,7 @@ namespace eve_parse_ui
       if (selfDisplayRegion == null)
       {
         // Root node has never been known to have no display region
-        Debug.Fail("Root node should have display region");
-        return null;
+        throw new InvalidOperationException("Root node should have display region");
       }
       else
       {
