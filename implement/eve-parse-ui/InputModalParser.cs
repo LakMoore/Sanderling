@@ -1,44 +1,54 @@
 ﻿
 namespace eve_parse_ui
 {
-  public static class QuantityModalParser
+  public static class InputModalParser
   {
-    public static QuantityModal? ParseQuantityModalFromUITreeRoot(UITreeNodeNoDisplayRegion uiTreeRootWithDisplayRegion)
+    public static InputModal? ParseInputModalFromUITreeRoot(UITreeNodeNoDisplayRegion uiTreeRootWithDisplayRegion)
     {
-      var quantityModal = uiTreeRootWithDisplayRegion
+      var anyModal = uiTreeRootWithDisplayRegion
           .GetDescendantsByType("Container")
           .Where(n => n.GetNameFromDictEntries()?.StartsWith("l_modal_") == true)
           .FirstOrDefault();
 
-      if (quantityModal == null)
+      if (anyModal == null)
         return null;
 
-      var textbox = quantityModal
+      var textbox = anyModal
           .GetDescendantsByType("SingleLineEditInteger")
           .FirstOrDefault();
+      var inputType = InputModal.Type.Numeric;
 
       if (textbox == null)
-        return null;
+      {
+        textbox = anyModal
+          .GetDescendantsByType("SingleLineEditText")
+          .FirstOrDefault();
+        inputType = InputModal.Type.Text;
 
-      var title = quantityModal
+        if (textbox == null)
+          return null;
+      }
+
+      var title = anyModal
           .GetDescendantsByType("WindowCaption")
           .SelectMany(UIParser.GetAllContainedDisplayTexts)
           .FirstOrDefault();
 
-      var okButton = quantityModal
+      var okButton = anyModal
           .GetDescendantsByType("Button")
           .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("ok_dialog_button") == true);
 
-      var cancelButton = quantityModal
+      var cancelButton = anyModal
           .GetDescendantsByType("Button")
           .FirstOrDefault(n => n.GetNameFromDictEntries()?.Equals("cancel_dialog_button") == true);
 
       if (okButton == null || cancelButton == null)
         return null;
 
-      return new QuantityModal()
+      return new InputModal()
       {
-        UiNode = quantityModal,
+        UiNode = anyModal,
+        InputType = inputType,
         Textbox = textbox,
         Title = title ?? "Unknown Title",
         OkButton = okButton,

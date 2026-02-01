@@ -735,7 +735,11 @@ public class EveOnline64
       "_texturePath", "_opacity", "_bgColor", "isExpanded",
 
       // Planetary Industry
-      "isSelected"
+      "isSelected",
+
+      // chat channels
+      "displayName", "charid"
+
   );
 
   internal struct LocalMemoryReadingTools

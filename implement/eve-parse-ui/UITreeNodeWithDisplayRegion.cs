@@ -28,6 +28,11 @@ namespace eve_parse_ui
       return (T)dictEntriesOfInterest[key];
     }
 
+    public IEnumerable<string> GetAllContainedDisplayTexts()
+    {
+      return UIParser.GetAllContainedDisplayTexts(this);
+    }
+
     public List<DisplayTextWithRegion> GetAllContainedDisplayTextsWithRegion()
     {
       return UIParser.GetAllContainedDisplayTextsWithRegion(this);

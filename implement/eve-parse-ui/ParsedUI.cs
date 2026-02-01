@@ -1,4 +1,5 @@
-﻿using static eve_parse_ui.UITreeNodeWithDisplayRegion;
+﻿using System.Runtime.Intrinsics.X86;
+using static eve_parse_ui.UITreeNodeWithDisplayRegion;
 
 namespace eve_parse_ui
 {
@@ -6,10 +7,10 @@ namespace eve_parse_ui
   {
     public required UITreeNodeWithDisplayRegion UiTree { get; init; }
     public required IEnumerable<ContextMenu> ContextMenus { get; init; }
-    public ShipUI? ShipUI { get; init; }
-    public required IEnumerable<Target> Targets { get; init; }
-    public InfoPanelContainer? InfoPanelContainer { get; init; }
-    public required IEnumerable<OverviewWindow> OverviewWindows { get; init; }
+    public required Lazy<ShipUI?> ShipUI { get; init; }
+    public required Lazy<IEnumerable<Target>> Targets { get; init; }
+    public required Lazy<InfoPanelContainer?> InfoPanelContainer { get; init; }
+    public required Lazy<IEnumerable<OverviewWindow>> OverviewWindows { get; init; }
     public SelectedItemWindow? SelectedItemWindow { get; init; }
     public DronesWindow? DronesWindow { get; init; }
     //public FittingWindow? FittingWindow { get; init; }
@@ -17,7 +18,8 @@ namespace eve_parse_ui
     //public DirectionalScannerWindow? DirectionalScannerWindow { get; init; }
     public StationWindow? StationWindow { get; init; }
     public required IEnumerable<InventoryWindow> InventoryWindows { get; init; }
-    //public required IReadOnlyList<ChatWindowStack> ChatWindowStacks { get; init; }
+    public required Lazy<IEnumerable<WindowStack>> WindowStacks { get; init; }
+    public required Lazy<IEnumerable<ChatWindow>> ChatWindows { get; init; }
     //public required IReadOnlyList<AgentConversationWindow> AgentConversationWindows { get; init; }
     //public MarketOrdersWindow? MarketOrdersWindow { get; init; }
     //public SurveyScanWindow? SurveyScanWindow { get; init; }
@@ -38,7 +40,7 @@ namespace eve_parse_ui
     public PlanetsWindow? PlanetsWindow { get; init; }
     public PlanetaryImportExportUI? PlanetaryImportExportUI { get; init; }
     public SessionTimeIndicator? SessionTimeIndicator { get; init; }
-    public QuantityModal? QuantityModal { get; init; }
+    public Lazy<InputModal?> InputModal { get; init; }
     public ExpandedUtilMenu? ExpandedUtilMenu { get; init; }
     public required IEnumerable<ListWindow> ListWindows { get; init; }
     public CharacterSelectionScreen? CharacterSelectionScreen { get; init; }
@@ -46,6 +48,12 @@ namespace eve_parse_ui
     public DailyLoginRewardsWindow? DailyLoginRewardsWindow { get; init; }
     public required IEnumerable<InfoWindow> InfoWindows { get; init; }
     public AssetsWindow? AssetsWindow { get; init; }
+    public required Lazy<RegionalMarketWindow?> RegionalMarketWindow { get; init; }
+    public required Lazy<BuyMarketActionWindow?> BuyMarketActionWindow { get; init; }
+    public required Lazy<ModifyMarketActionWindow?> ModifyMarketActionWindow { get; init; }
+    public SelectStationWindow? SelectStationWindow { get; init; }
+    public required Lazy<MarketOrdersWindow?> MarketOrdersWindow { get; init; }
+
   }
 
   public record DisplayRegion(int X, int Y, int Width, int Height)
@@ -269,31 +277,38 @@ namespace eve_parse_ui
     public int? Quantity { get; init; }
   }
 
-  // ==== Chat ====
-  public record ChatWindowStack
+  public record WindowStack
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public ChatWindow? ChatWindow { get; init; }
+    public required IEnumerable<WindowStackTab> Tabs { get; init; }
+  }
+
+  public record WindowStackTab
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public required string Name { get; init; }
+    public required bool IsActive { get; init; }
   }
 
   public record ChatWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public string? Name { get; init; }
-    public ChatWindowUserlist? Userlist { get; init; }
+    public required ChatWindowUserlist Userlist { get; init; }
   }
 
   public record ChatWindowUserlist
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<ChatUserEntry> VisibleUsers { get; init; }
+    public required IEnumerable<ChatUserEntry> VisibleUsers { get; init; }
     public ScrollingPanel? ScrollingPanel { get; init; }
   }
 
   public record ChatUserEntry
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public string? Name { get; init; }
+    public required string Name { get; init; }
+    public string? CharacterID { get; init; }
     public string? StandingIconHint { get; init; }
   }
 
@@ -578,12 +593,6 @@ namespace eve_parse_ui
 
   // ==== Fitting ====
   public record FittingWindow
-  {
-    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-  }
-
-  // ==== MarketOrders ====
-  public record MarketOrdersWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
   }
