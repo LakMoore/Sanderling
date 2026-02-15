@@ -13,6 +13,20 @@
     public IReadOnlyList<NeocomPanelItem>? PanelGroups { get; init; }
     public IReadOnlyList<NeocomPanelItem>? PanelCommands { get; init; }
     public NeocomClock? Clock { get; init; }
+
+    // Additional properties from AI conversion
+    public IReadOnlyList<NeocomButton> Buttons { get; init; } = new List<NeocomButton>();
+    public string? SystemName { get; init; }
+    public string? SystemSecurityStatus { get; init; }
+  }
+
+  public record NeocomButton
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public bool IsActive { get; init; }
+    public bool IsHighlighted { get; init; }
+    public bool IsBlinking { get; init; }
   }
 
   public record NeocomPanelItem

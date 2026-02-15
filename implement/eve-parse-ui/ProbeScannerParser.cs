@@ -14,11 +14,33 @@
           .Select(ParseProbeScanResult)
           .ToList();
 
+      // Find scan button
+      var scanButton = windowNode.ListDescendantsWithDisplayRegion()
+          .FirstOrDefault(n =>
+          {
+            var texts = UIParser.GetAllContainedDisplayTexts(n);
+            return texts.Any(t => t?.Contains("Scan", StringComparison.OrdinalIgnoreCase) == true);
+          });
+
+      // Find stop button
+      var stopButton = windowNode.ListDescendantsWithDisplayRegion()
+          .FirstOrDefault(n =>
+          {
+            var texts = UIParser.GetAllContainedDisplayTexts(n);
+            return texts.Any(t => t?.Contains("Stop", StringComparison.OrdinalIgnoreCase) == true);
+          });
+
+      // Determine if currently scanning (stop button visible/enabled)
+      var isScanning = stopButton?.GetBoolFromDictEntries("isEnabled") ?? false;
+
       return new ProbeScannerWindow
       {
         UiNode = windowNode,
         ScanResults = scanResults,
-        ScrollingPanel = UIParser.ParseScrollingPanel(windowNode)
+        ScrollingPanel = UIParser.ParseScrollingPanel(windowNode),
+        ScanButton = scanButton,
+        StopButton = stopButton,
+        IsScanning = isScanning
       };
     }
 
@@ -59,6 +81,46 @@
       var id = UIParser.GetDisplayText(detailsLeftToRight[1]);
       var name = UIParser.GetDisplayText(detailsLeftToRight[2]);
 
+      // Parse additional properties from AI conversion
+      var typeName = group; // Group often contains type information
+      var isSelected = scanResultNode.GetBoolFromDictEntries("isSelected") ?? false;
+      var isHighlighted = scanResultNode.GetBoolFromDictEntries("isHighlighted") ?? false;
+
+      // Parse signal strength (percentage from signal string like "100%")
+      int? signalStrength = null;
+      if (!string.IsNullOrEmpty(signal))
+      {
+        var match = System.Text.RegularExpressions.Regex.Match(signal, @"(\d+)%");
+        if (match.Success && int.TryParse(match.Groups[1].Value, out var strength))
+        {
+          signalStrength = strength;
+        }
+      }
+
+      // Parse distance in meters
+      float? distanceInMeters = null;
+      string? distanceUnit = null;
+      if (!string.IsNullOrEmpty(distance))
+      {
+        var distanceMatch = System.Text.RegularExpressions.Regex.Match(distance, @"([\d,.]+)\s*([a-zA-Z]+)");
+        if (distanceMatch.Success)
+        {
+          var valueStr = distanceMatch.Groups[1].Value.Replace(",", "");
+          if (float.TryParse(valueStr, out var distValue))
+          {
+            distanceUnit = distanceMatch.Groups[2].Value;
+            // Convert to meters
+            distanceInMeters = distanceUnit.ToLower() switch
+            {
+              "km" => distValue * 1000,
+              "au" => distValue * 149597870700,
+              "m" => distValue,
+              _ => distValue
+            };
+          }
+        }
+      }
+
       return new ProbeScanResult
       {
         UiNode = scanResultNode,
@@ -67,7 +129,13 @@
         Name = name ?? "??",
         Group = group,
         Signal = signal,
-        WarpButton = warpButton
+        WarpButton = warpButton,
+        TypeName = typeName,
+        SignalStrength = signalStrength,
+        DistanceInMeters = distanceInMeters,
+        DistanceUnit = distanceUnit,
+        IsSelected = isSelected,
+        IsHighlighted = isHighlighted
       };
     }
   }

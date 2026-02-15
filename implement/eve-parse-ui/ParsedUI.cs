@@ -13,30 +13,29 @@ namespace eve_parse_ui
     public required Lazy<IEnumerable<OverviewWindow>> OverviewWindows { get; init; }
     public required Lazy<SelectedItemWindow?> SelectedItemWindow { get; init; }
     public required Lazy<DronesWindow?> DronesWindow { get; init; }
-    //public FittingWindow? FittingWindow { get; init; }
+    public required Lazy<FittingWindow?> FittingWindow { get; init; }
     public required Lazy<ProbeScannerWindow?> ProbeScannerWindow { get; init; }
-    //public DirectionalScannerWindow? DirectionalScannerWindow { get; init; }
+    public required Lazy<DirectionalScannerWindow?> DirectionalScannerWindow { get; init; }
     public required Lazy<StationWindow?> StationWindow { get; init; }
     public required Lazy<IEnumerable<InventoryWindow>> InventoryWindows { get; init; }
     public required Lazy<IEnumerable<WindowStack>> WindowStacks { get; init; }
     public required Lazy<IEnumerable<ChatWindow>> ChatWindows { get; init; }
-    //public required IReadOnlyList<AgentConversationWindow> AgentConversationWindows { get; init; }
-    //public MarketOrdersWindow? MarketOrdersWindow { get; init; }
-    //public SurveyScanWindow? SurveyScanWindow { get; init; }
-    //public BookmarkLocationWindow? BookmarkLocationWindow { get; init; }
-    //public RepairShopWindow? RepairShopWindow { get; init; }
-    //public CharacterSheetWindow? CharacterSheetWindow { get; init; }
-    //public FleetWindow? FleetWindow { get; init; }
-    //public LocationsWindow? LocationsWindow { get; init; }
-    //public WatchListPanel? WatchListPanel { get; init; }
-    //public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
-    //public ModuleButtonTooltip? ModuleButtonTooltip { get; init; }
-    //public HeatStatusTooltip? HeatStatusTooltip { get; init; }
+    public required Lazy<IEnumerable<AgentConversationWindow>> AgentConversationWindows { get; init; }
+    public required Lazy<SurveyScanWindow?> SurveyScanWindow { get; init; }
+    public required Lazy<BookmarkLocationWindow?> BookmarkLocationWindow { get; init; }
+    public required Lazy<RepairShopWindow?> RepairShopWindow { get; init; }
+    public required Lazy<CharacterSheetWindow?> CharacterSheetWindow { get; init; }
+    public required Lazy<FleetWindow?> FleetWindow { get; init; }
+    public required Lazy<LocationsWindow?> LocationsWindow { get; init; }
+    public required Lazy<WatchListPanel?> WatchListPanel { get; init; }
+    public required Lazy<StandaloneBookmarkWindow?> StandaloneBookmarkWindow { get; init; }
+    public required Lazy<ModuleButtonTooltip?> ModuleButtonTooltip { get; init; }
+    public required Lazy<HeatStatusTooltip?> HeatStatusTooltip { get; init; }
     public required Lazy<Neocom?> Neocom { get; init; }
     public required Lazy<IEnumerable<MessageBox>> MessageBoxes { get; init; }
     public required Lazy<LayerAboveMain?> LayerAboveMain { get; init; }
-    //public KeyActivationWindow? KeyActivationWindow { get; init; }
-    //public CompressionWindow? CompressionWindow { get; init; }
+    public required Lazy<KeyActivationWindow?> KeyActivationWindow { get; init; }
+    public required Lazy<CompressionWindow?> CompressionWindow { get; init; }
     public required Lazy<PlanetsWindow?> PlanetsWindow { get; init; }
     public required Lazy<PlanetaryImportExportUI?> PlanetaryImportExportUI { get; init; }
     public required Lazy<SessionTimeIndicator?> SessionTimeIndicator { get; init; }
@@ -44,7 +43,6 @@ namespace eve_parse_ui
     public required Lazy<ExpandedUtilMenu?> ExpandedUtilMenu { get; init; }
     public required Lazy<IEnumerable<ListWindow>> ListWindows { get; init; }
     public required Lazy<CharacterSelectionScreen?> CharacterSelectionScreen { get; init; }
-    public required Lazy<StandaloneBookmarkWindow?> StandaloneBookmarkWindow { get; init; }
     public required Lazy<DailyLoginRewardsWindow?> DailyLoginRewardsWindow { get; init; }
     public required Lazy<IEnumerable<InfoWindow>> InfoWindows { get; init; }
     public required Lazy<AssetsWindow?> AssetsWindow { get; init; }
@@ -214,6 +212,23 @@ namespace eve_parse_ui
     public required bool IsActiveTarget { get; init; }
     public UITreeNodeWithDisplayRegion? AssignedContainerNode { get; init; }
     public required IReadOnlyList<UITreeNodeWithDisplayRegion> AssignedIcons { get; init; }
+    public bool IsHighlighted { get; init; }
+    public bool IsSelected { get; init; }
+    public bool IsExpanded { get; init; }
+    public bool IsWarpTo { get; init; }
+    public bool IsJamming { get; init; }
+    public bool IsTargeting { get; init; }
+    public bool IsTargetingMe { get; init; }
+    public bool IsWarpDisrupted { get; init; }
+    public bool IsWarpScrambled { get; init; }
+    public bool IsWebified { get; init; }
+    public bool IsBeingTargeted { get; init; }
+    public bool IsBeingTargetedByMe { get; init; }
+    public bool IsBeingTargetedByMeOnly { get; init; }
+    public int? BarPercent { get; init; }
+    public ColorComponents? BarColor { get; init; }
+    public IReadOnlyList<string> Icons { get; init; } = new List<string>();
+    public IReadOnlyList<string> IconsWithHints { get; init; } = new List<string>();
   }
 
   // ==== StationWindow ====
@@ -318,6 +333,21 @@ namespace eve_parse_ui
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public ModuleButtonTooltipShortcut? Shortcut { get; init; }
     public ModuleButtonTooltipOptimalRange? OptimalRange { get; init; }
+    public string? ModuleName { get; init; }
+    public string? GroupName { get; init; }
+    public string? ActivationEffect { get; init; }
+    public string? DeactivationEffect { get; init; }
+    public string? CycleTime { get; init; }
+    public string? FalloffRange { get; init; }
+    public string? Duration { get; init; }
+    public string? ActivationCost { get; init; }
+    public string? ActivationTime { get; init; }
+    public string? DeactivationTime { get; init; }
+    public string? HeatDamage { get; init; }
+    public string? HeatDamageBonus { get; init; }
+    public string? OverloadBonus { get; init; }
+    public string? OverloadSelfBonus { get; init; }
+    public string? OverloadDurationBonus { get; init; }
   }
 
   public record ModuleButtonTooltipShortcut
@@ -338,34 +368,90 @@ namespace eve_parse_ui
     public int? LowPercent { get; init; }
     public int? MediumPercent { get; init; }
     public int? HighPercent { get; init; }
+    public int? HeatLevel { get; init; }
+    public string? HeatLevelText { get; init; }
+    public string? HeatDamage { get; init; }
+    public string? HeatDamageBonus { get; init; }
+    public string? OverloadBonus { get; init; }
+    public string? OverloadSelfBonus { get; init; }
+    public string? OverloadDurationBonus { get; init; }
   }
 
   // ==== Agent Conversation ====
   public record AgentConversationWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? AgentName { get; init; }
+    public string? AgentCorporation { get; init; }
+    public required IReadOnlyList<AgentConversationMessage> Messages { get; init; }
+    public required IReadOnlyList<AgentConversationResponse> Responses { get; init; }
+    public UITreeNodeWithDisplayRegion? InputBox { get; init; }
+  }
+
+  public record AgentConversationMessage
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Text { get; init; }
+    public bool IsFromAgent { get; init; }
+    public string? Timestamp { get; init; }
+  }
+
+  public record AgentConversationResponse
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Text { get; init; }
+    public bool IsHighlighted { get; init; }
   }
 
   // ==== Bookmark Location ====
   public record BookmarkLocationWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public UITreeNodeWithDisplayRegion? SubmitButton { get; init; }
+    public UITreeNodeWithDisplayRegion? NameInput { get; init; }
+    public UITreeNodeWithDisplayRegion? NotesInput { get; init; }
+    public UITreeNodeWithDisplayRegion? CreateButton { get; init; }
     public UITreeNodeWithDisplayRegion? CancelButton { get; init; }
+    public UITreeNodeWithDisplayRegion? SubmitButton { get; init; }
   }
 
   // ==== Fleet ====
   public record FleetWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> FleetMembers { get; init; }
+    public IReadOnlyList<FleetMember> Members { get; init; } = new List<FleetMember>();
+    public string? FleetName { get; init; }
+    public bool IsCommander { get; init; }
+    public UITreeNodeWithDisplayRegion? InviteButton { get; init; }
+    public UITreeNodeWithDisplayRegion? LeaveButton { get; init; }
+  }
+
+  public record FleetMember
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public string? ShipType { get; init; }
+    public string? SystemName { get; init; }
+    public int? SolarSystemId { get; init; }
+    public int? Distance { get; init; }
+    public bool IsWarping { get; init; }
+    public bool IsInFleetHangar { get; init; }
+    public bool IsInFleetHangarAccessAllowed { get; init; }
   }
 
   // ==== Watch List ====
   public record WatchListPanel
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> Entries { get; init; }
+    public IReadOnlyList<WatchListEntry> Entries { get; init; } = new List<WatchListEntry>();
+  }
+
+  public record WatchListEntry
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public string? TypeName { get; init; }
+    public string? Distance { get; init; }
+    public bool IsSelected { get; init; }
   }
 
   // ==== Standalone Bookmark ====
@@ -500,8 +586,11 @@ namespace eve_parse_ui
   public record ProbeScannerWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required List<ProbeScanResult> ScanResults { get; init; }
+    public required IReadOnlyList<ProbeScanResult> ScanResults { get; init; }
     public ScrollingPanel? ScrollingPanel { get; init; }
+    public UITreeNodeWithDisplayRegion? ScanButton { get; init; }
+    public UITreeNodeWithDisplayRegion? StopButton { get; init; }
+    public bool IsScanning { get; init; }
   }
 
   public record ProbeScanResult
@@ -513,6 +602,12 @@ namespace eve_parse_ui
     public string? Group { get; init; }
     public string? Signal { get; init; }
     public UITreeNodeWithDisplayRegion? WarpButton { get; init; }
+    public string? TypeName { get; init; }
+    public int? SignalStrength { get; init; }
+    public float? DistanceInMeters { get; init; }
+    public string? DistanceUnit { get; init; }
+    public bool IsSelected { get; init; }
+    public bool IsHighlighted { get; init; }
   }
 
   // ==== Directional Scanner ====
@@ -520,7 +615,22 @@ namespace eve_parse_ui
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public UITreeNodeWithDisplayRegion? ScrollNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> ScanResults { get; init; }
+    public required IReadOnlyList<DirectionalScanResult> ScanResults { get; init; }
+    public UITreeNodeWithDisplayRegion? ScanButton { get; init; }
+    public UITreeNodeWithDisplayRegion? RangeDropdown { get; init; }
+    public UITreeNodeWithDisplayRegion? RangeText { get; init; }
+  }
+
+  public record DirectionalScanResult
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? TypeName { get; init; }
+    public string? Name { get; init; }
+    public int? Distance { get; init; }
+    public bool IsAsteroid { get; init; }
+    public bool IsShip { get; init; }
+    public bool IsWreck { get; init; }
+    public bool IsContainer { get; init; }
   }
 
   // ==== MessageBox ====
@@ -556,6 +666,9 @@ namespace eve_parse_ui
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public UITreeNodeWithDisplayRegion? ActivateButton { get; init; }
+    public string? ActivationCode { get; init; }
+    public UITreeNodeWithDisplayRegion? InputField { get; init; }
+    public UITreeNodeWithDisplayRegion? CancelButton { get; init; }
   }
 
   public record CompressionWindow
@@ -563,12 +676,43 @@ namespace eve_parse_ui
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
     public UITreeNodeWithDisplayRegion? CompressButton { get; init; }
     public WindowControls? WindowControls { get; init; }
+    public IReadOnlyList<CompressionItem> Items { get; init; } = new List<CompressionItem>();
+    public bool CanCompress { get; init; }
+  }
+
+  public record CompressionItem
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public int? Quantity { get; init; }
+    public bool IsSelected { get; init; }
   }
 
   public record LocationsWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<LocationsWindowPlaceEntry> PlaceEntries { get; init; }
+    public IReadOnlyList<LocationFolder> Folders { get; init; } = new List<LocationFolder>();
+    public IReadOnlyList<LocationBookmark> Bookmarks { get; init; } = new List<LocationBookmark>();
+    public IReadOnlyList<LocationsWindowPlaceEntry> PlaceEntries { get; init; } = new List<LocationsWindowPlaceEntry>();
+  }
+
+  public record LocationFolder
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public bool IsExpanded { get; init; }
+    public IReadOnlyList<LocationFolder> SubFolders { get; init; } = new List<LocationFolder>();
+    public IReadOnlyList<LocationBookmark> Bookmarks { get; init; } = new List<LocationBookmark>();
+  }
+
+  public record LocationBookmark
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public string? Location { get; init; }
+    public string? Notes { get; init; }
+    public DateTime? Created { get; init; }
+    public bool IsSelected { get; init; }
   }
 
   public record LocationsWindowPlaceEntry
@@ -595,22 +739,57 @@ namespace eve_parse_ui
   public record FittingWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public IReadOnlyList<FittingWindowFitting> Fittings { get; init; } = new List<FittingWindowFitting>();
+    public UITreeNodeWithDisplayRegion? SaveButton { get; init; }
+    public UITreeNodeWithDisplayRegion? SaveAsButton { get; init; }
+    public UITreeNodeWithDisplayRegion? DeleteButton { get; init; }
+    public UITreeNodeWithDisplayRegion? ImportButton { get; init; }
+    public UITreeNodeWithDisplayRegion? ExportButton { get; init; }
+  }
+
+  public record FittingWindowFitting
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public bool IsSelected { get; init; }
+    public bool IsHighlighted { get; init; }
+    public bool IsExpanded { get; init; }
+    public IReadOnlyList<FittingWindowFitting> Children { get; init; } = new List<FittingWindowFitting>();
   }
 
   // ==== Survey Scan ====
   public record SurveyScanWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> ScanEntries { get; init; }
+    public required IReadOnlyList<SurveyScanResult> ScanEntries { get; init; }
+  }
+
+  public record SurveyScanResult
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? TypeName { get; init; }
+    public int? Quantity { get; init; }
+    public float? Distance { get; init; }
+    public string? DistanceUnit { get; init; }
   }
 
   // ==== Repair Shop ====
   public record RepairShopWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> Items { get; init; }
+    public IReadOnlyList<RepairItem> Items { get; init; } = new List<RepairItem>();
+    public UITreeNodeWithDisplayRegion? RepairAllButton { get; init; }
     public UITreeNodeWithDisplayRegion? ButtonGroup { get; init; }
-    public required IReadOnlyList<RepairShopWindowButton> Buttons { get; init; }
+    public IReadOnlyList<RepairShopWindowButton> Buttons { get; init; } = new List<RepairShopWindowButton>();
+  }
+
+  public record RepairItem
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public int? DamagePercent { get; init; }
+    public decimal? RepairCost { get; init; }
+    public bool IsSelected { get; init; }
   }
 
   public record RepairShopWindowButton
@@ -623,7 +802,38 @@ namespace eve_parse_ui
   public record CharacterSheetWindow
   {
     public required UITreeNodeWithDisplayRegion UiNode { get; init; }
-    public required IReadOnlyList<UITreeNodeWithDisplayRegion> SkillGroups { get; init; }
+    public string? CharacterName { get; init; }
+    public string? CorporationName { get; init; }
+    public string? AllianceName { get; init; }
+    public IReadOnlyList<CharacterSkill> Skills { get; init; } = new List<CharacterSkill>();
+    public IReadOnlyList<CharacterAttribute> Attributes { get; init; } = new List<CharacterAttribute>();
+    public IReadOnlyList<SkillGroupGauge> SkillGroups { get; init; } = new List<SkillGroupGauge>();
+  }
+
+  public record CharacterSkill
+  {
+    public string? Name { get; init; }
+    public int Level { get; init; }
+    public int? TrainedLevel { get; init; }
+    public int? Points { get; init; }
+    public int? PointsToNextLevel { get; init; }
+    public TimeSpan? TimeToNextLevel { get; init; }
+    public bool IsTraining { get; init; }
+  }
+
+  public record CharacterAttribute
+  {
+    public string? Name { get; init; }
+    public int BaseValue { get; init; }
+    public int ImplantBonus { get; init; }
+  }
+
+  public record SkillGroupGauge
+  {
+    public required UITreeNodeWithDisplayRegion UiNode { get; init; }
+    public string? Name { get; init; }
+    public int? TrainedSkillPoints { get; init; }
+    public int? TotalSkillPoints { get; init; }
   }
 
   // ==== Drones ====
