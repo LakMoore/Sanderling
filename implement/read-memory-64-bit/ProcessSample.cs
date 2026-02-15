@@ -22,7 +22,7 @@ public class ProcessSample
 
         var screenshotEntries =
             screenshotEntriesCandidates
-            .Where(filePathAndContent => filePathAndContent.content != null)
+            .Where(filePathAndContent => filePathAndContent.content is not null)
             .Select(filePathAndContent => new KeyValuePair<IImmutableList<string>, byte[]>(
                 filePathAndContent.filePath, filePathAndContent.content))
             .ToArray();
@@ -78,3 +78,4 @@ public record SampleMemoryRegion(
     ulong baseAddress,
     ulong length,
     ReadOnlyMemory<byte>? content);
+

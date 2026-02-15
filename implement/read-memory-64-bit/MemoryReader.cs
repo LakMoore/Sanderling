@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace read_memory_64_bit;
 
-
 public interface IMemoryReader
 {
     ReadOnlyMemory<byte>? ReadBytes(ulong startAddress, int length);
@@ -73,6 +72,18 @@ public class MemoryReaderFromLiveProcess : IMemoryReader, IDisposable
 
     public ReadOnlyMemory<byte>? ReadBytes(ulong startAddress, int length)
     {
+        if (length < 0)
+        {
+            /*
+             * From https://www.ecma-international.org/wp-content/uploads/ECMA-335_6th_edition_june_2012.pdf
+             * III.4.20 newarr – create a zero-based, one-dimensional array
+             * 
+             * [...]
+             * System.OverflowException is thrown if numElems is < 0 
+             * */
+            return null;
+        }
+
         var buffer = new byte[length];
 
         UIntPtr numberOfBytesReadAsPtr = UIntPtr.Zero;

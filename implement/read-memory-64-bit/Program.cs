@@ -10,7 +10,7 @@ namespace read_memory_64_bit;
 
 class Program
 {
-  static string AppVersionId => "2025-10-14";
+    static string AppVersionId => "2025-10-24";
 
   static int Main(string[] args)
   {
@@ -110,10 +110,10 @@ class Program
 
               var searchUIRootsStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-              var memoryRegions =
-                      processSampleUnpacked.memoryRegions
-                      .Select(memoryRegion => (memoryRegion.baseAddress, length: memoryRegion.content.Value.Length))
-                      .ToImmutableList();
+                    var memoryRegions =
+                        processSampleUnpacked.memoryRegions
+                        .Select(memoryRegion => (memoryRegion.baseAddress, length: (ulong)memoryRegion.content.Value.Length))
+                        .ToImmutableList();
 
               var uiRootCandidatesAddresses =
                       EveOnline64.EnumeratePossibleAddressesForUIRootObjects(memoryRegions, memoryReader)
@@ -143,11 +143,16 @@ class Program
               return (memoryReader, ImmutableList<ulong>.Empty.Add(rootAddress));
             }
 
-            (IMemoryReader, IImmutableList<ulong>) GetMemoryReaderAndRootAddresses()
-            {
-              if (processId.HasValue)
-              {
-                var possibleRootAddresses = 0 < rootAddressArgument?.Length ? ImmutableList.Create(ParseULong(rootAddressArgument)) : EveOnline64.EnumeratePossibleAddressesForUIRootObjectsFromProcessId(processId.Value);
+                (IMemoryReader, IImmutableList<ulong>) GetMemoryReaderAndRootAddresses()
+                {
+                    if (processId.HasValue)
+                    {
+                        var possibleRootAddresses =
+                        0 < rootAddressArgument?.Length
+                        ?
+                        ImmutableList.Create(ParseULong(rootAddressArgument))
+                        :
+                        EveOnline64.EnumeratePossibleAddressesForUIRootObjectsFromProcessId(processId.Value);
 
                 return (new MemoryReaderFromLiveProcess(processId.Value), possibleRootAddresses);
               }
@@ -170,12 +175,12 @@ class Program
             IImmutableList<UITreeNode> ReadUITrees() =>
                     uiRootCandidatesAddresses
                     .Select(uiTreeRoot => EveOnline64.ReadUITreeFromAddress(uiTreeRoot, memoryReader, 99))
-                    .Where(uiTree => uiTree != null)
+                    .Where(uiTree => uiTree is not null)
                     .ToImmutableList();
 
-            if (warmupIterationsArgument != null)
-            {
-              var iterations = int.Parse(warmupIterationsArgument);
+                if (warmupIterationsArgument is not null)
+                {
+                    var iterations = int.Parse(warmupIterationsArgument);
 
               Console.WriteLine("Performing " + iterations + " warmup iterations...");
 
@@ -215,9 +220,9 @@ class Program
                     .OrderByDescending(uiTreeWithStats => uiTreeWithStats.nodeCount)
                     .FirstOrDefault().uiTree;
 
-            if (largestUiTree != null)
-            {
-              var uiTreePreparedForFile = largestUiTree;
+                if (largestUiTree is not null)
+                {
+                    var uiTreePreparedForFile = largestUiTree;
 
               if (removeOtherDictEntriesArgument)
               {
@@ -277,11 +282,14 @@ class Program
   {
     var process = System.Diagnostics.Process.GetProcessById(processId);
 
-    var beginMainWindowClientAreaScreenshotBmp = BMPFileFromBitmap(GetScreenshotOfWindowClientAreaAsBitmap(process.MainWindowHandle));
+        var beginMainWindowClientAreaScreenshotBmp =
+            BMPFileFromBitmap(GetScreenshotOfWindowClientAreaAsBitmap(process.MainWindowHandle));
 
-    var (committedRegions, logEntries) = EveOnline64.ReadCommittedMemoryRegionsWithContentFromProcessId(processId);
+        var (committedRegions, logEntries) =
+            EveOnline64.ReadCommittedMemoryRegionsWithContentFromProcessId(processId);
 
-    var endMainWindowClientAreaScreenshotBmp = BMPFileFromBitmap(GetScreenshotOfWindowClientAreaAsBitmap(process.MainWindowHandle));
+        var endMainWindowClientAreaScreenshotBmp =
+            BMPFileFromBitmap(GetScreenshotOfWindowClientAreaAsBitmap(process.MainWindowHandle));
 
     return ProcessSample.ZipArchiveFromProcessSample(
         committedRegions,
@@ -300,57 +308,71 @@ class Program
     return stream.ToArray();
   }
 
-  static public int[][] GetScreenshotOfWindowAsPixelsValuesR8G8B8(IntPtr windowHandle)
-  {
-    var screenshotAsBitmap = GetScreenshotOfWindowAsBitmap(windowHandle);
-    if (screenshotAsBitmap == null)
-      return null;
-    var bitmapData = screenshotAsBitmap.LockBits(
-        new System.Drawing.Rectangle(0, 0, screenshotAsBitmap.Width, screenshotAsBitmap.Height),
-        System.Drawing.Imaging.ImageLockMode.ReadOnly,
-        System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-    int byteCount = bitmapData.Stride * screenshotAsBitmap.Height;
-    byte[] pixelsArray = new byte[byteCount];
-    IntPtr ptrFirstPixel = bitmapData.Scan0;
-    Marshal.Copy(ptrFirstPixel, pixelsArray, 0, pixelsArray.Length);
-    screenshotAsBitmap.UnlockBits(bitmapData);
-    var pixels = new int[screenshotAsBitmap.Height][];
-    for (var rowIndex = 0; rowIndex < screenshotAsBitmap.Height; ++rowIndex)
+    static public int[][] GetScreenshotOfWindowAsPixelsValuesR8G8B8(IntPtr windowHandle)
     {
-      var rowPixelValues = new int[screenshotAsBitmap.Width];
-      for (var columnIndex = 0; columnIndex < screenshotAsBitmap.Width; ++columnIndex)
-      {
-        var pixelBeginInArray = bitmapData.Stride * rowIndex + columnIndex * 3;
-        var red = pixelsArray[pixelBeginInArray + 2];
-        var green = pixelsArray[pixelBeginInArray + 1];
-        var blue = pixelsArray[pixelBeginInArray + 0];
-        rowPixelValues[columnIndex] = (red << 16) | (green << 8) | blue;
-      }
-      pixels[rowIndex] = rowPixelValues;
+        var screenshotAsBitmap =
+            GetScreenshotOfWindowAsBitmap(windowHandle);
+
+        if (screenshotAsBitmap is null)
+            return null;
+
+        var bitmapData =
+            screenshotAsBitmap.LockBits(
+                new System.Drawing.Rectangle(0, 0, screenshotAsBitmap.Width, screenshotAsBitmap.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+        int byteCount = bitmapData.Stride * screenshotAsBitmap.Height;
+
+        byte[] pixelsArray = new byte[byteCount];
+        IntPtr ptrFirstPixel = bitmapData.Scan0;
+        Marshal.Copy(ptrFirstPixel, pixelsArray, 0, pixelsArray.Length);
+
+        screenshotAsBitmap.UnlockBits(bitmapData);
+        var pixels = new int[screenshotAsBitmap.Height][];
+
+        for (var rowIndex = 0; rowIndex < screenshotAsBitmap.Height; ++rowIndex)
+        {
+            var rowPixelValues = new int[screenshotAsBitmap.Width];
+            for (var columnIndex = 0; columnIndex < screenshotAsBitmap.Width; ++columnIndex)
+            {
+                var pixelBeginInArray = bitmapData.Stride * rowIndex + columnIndex * 3;
+                var red = pixelsArray[pixelBeginInArray + 2];
+                var green = pixelsArray[pixelBeginInArray + 1];
+                var blue = pixelsArray[pixelBeginInArray + 0];
+                rowPixelValues[columnIndex] = (red << 16) | (green << 8) | blue;
+            }
+
+            pixels[rowIndex] = rowPixelValues;
+        }
+
+        return pixels;
     }
-    return pixels;
-  }
 
+    //  https://github.com/Viir/bots/blob/225c680115328d9ba0223760cec85d56f2ea9a87/implement/templates/locate-object-in-window/src/BotEngine/VolatileHostWindowsApi.elm#L535-L557
+    static public System.Drawing.Bitmap GetScreenshotOfWindowAsBitmap(IntPtr windowHandle)
+    {
+        SetProcessDPIAware();
 
-  //  https://github.com/Viir/bots/blob/225c680115328d9ba0223760cec85d56f2ea9a87/implement/templates/locate-object-in-window/src/BotEngine/VolatileHostWindowsApi.elm#L535-L557
-  static public System.Drawing.Bitmap GetScreenshotOfWindowAsBitmap(IntPtr windowHandle)
-  {
-    SetProcessDPIAware();
-    var windowRect = new WinApi.Rect();
-    if (WinApi.GetWindowRect(windowHandle, ref windowRect) == IntPtr.Zero)
-      return null;
-    int width = windowRect.right - windowRect.left;
-    int height = windowRect.bottom - windowRect.top;
-    var asBitmap = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-    System.Drawing.Graphics.FromImage(asBitmap).CopyFromScreen(
-        windowRect.left,
-        windowRect.top,
-        0,
-        0,
-        new System.Drawing.Size(width, height),
-        System.Drawing.CopyPixelOperation.SourceCopy);
-    return asBitmap;
-  }
+        var windowRect = new WinApi.Rect();
+
+        if (WinApi.GetWindowRect(windowHandle, ref windowRect) == IntPtr.Zero)
+            return null;
+
+        int width = windowRect.right - windowRect.left;
+        int height = windowRect.bottom - windowRect.top;
+        var asBitmap = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+        System.Drawing.Graphics.FromImage(asBitmap).CopyFromScreen(
+            windowRect.left,
+            windowRect.top,
+            0,
+            0,
+            new System.Drawing.Size(width, height),
+            System.Drawing.CopyPixelOperation.SourceCopy);
+
+        return asBitmap;
+    }
 
   static public System.Drawing.Bitmap GetScreenshotOfWindowClientAreaAsBitmap(IntPtr windowHandle)
   {
@@ -375,18 +397,20 @@ class Program
       bottom = clientRectRightBottom.y
     };
 
-    int width = clientRect.right - clientRect.left;
-    int height = clientRect.bottom - clientRect.top;
-    var asBitmap = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-    System.Drawing.Graphics.FromImage(asBitmap).CopyFromScreen(
-        clientRect.left,
-        clientRect.top,
-        0,
-        0,
-        new System.Drawing.Size(width, height),
-        System.Drawing.CopyPixelOperation.SourceCopy);
-    return asBitmap;
-  }
+        int width = clientRect.right - clientRect.left;
+        int height = clientRect.bottom - clientRect.top;
+        var asBitmap = new System.Drawing.Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+        System.Drawing.Graphics.FromImage(asBitmap).CopyFromScreen(
+            clientRect.left,
+            clientRect.top,
+            0,
+            0,
+            new System.Drawing.Size(width, height),
+            System.Drawing.CopyPixelOperation.SourceCopy);
+
+        return asBitmap;
+    }
 
   static void SetProcessDPIAware()
   {
@@ -401,8 +425,8 @@ class Program
     if (asString.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
       return ulong.Parse(asString[2..], System.Globalization.NumberStyles.HexNumber);
 
-    return ulong.Parse(asString);
-  }
+        return ulong.Parse(asString);
+    }
 }
 
 /// <summary>
@@ -432,9 +456,9 @@ public record UITreeNode(
   public record Bunch(
       System.Text.Json.Nodes.JsonObject entriesOfInterest);
 
-  public IEnumerable<UITreeNode> EnumerateSelfAndDescendants() =>
-      new[] { this }
-      .Concat((children ?? []).SelectMany(child => child?.EnumerateSelfAndDescendants() ?? []));
+    public IEnumerable<UITreeNode> EnumerateSelfAndDescendants() =>
+        new[] { this }
+        .Concat((children ?? []).SelectMany(child => child?.EnumerateSelfAndDescendants() ?? []));
 
   public UITreeNode WithOtherDictEntriesRemoved()
   {

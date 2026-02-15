@@ -5,8 +5,8 @@
 #r "sha256:B9B4E633EA6C728BAD5F7CBBEF7F8B842F7E10181731DBE5EC3CD995A6F60287"
 #r "sha256:81110D44256397F0F3C572A20CA94BB4C669E5DE89F9348ABAD263FBD81C54B9"
 
-// https://github.com/Arcitectus/Sanderling/releases/download/v2025-04-20/read-memory-64-bit-separate-assemblies-abca4076e6a162e8159e604a470271c69e60b34e-win-x64.zip
-#r "sha256:418f612244b2e5463751a1d049cc353f96c7b6b255b74f900d057a246a409889"
+// https://github.com/Arcitectus/Sanderling/releases/download/v2025-10-24/read-memory-64-bit-separate-assemblies-594a2339a63d7e946872a77c0d5772acdf75bd98-win-x64.zip
+#r "sha256:b1cb3048db6b5be1016c3ef97f7054a99643a2e8376654b4964aada0669bc472"
 
 #r "mscorlib"
 #r "netstandard"
@@ -262,18 +262,19 @@ Response request(Request request)
         };
     }
 
-    if (request.ReadFromWindow != null)
+    if (request.ReadFromWindow is { } readFromWindow)
     {
         var readingFromGameIndex = System.Threading.Interlocked.Increment(ref readingFromGameCount);
 
         var readingId = readingFromGameIndex.ToString("D6") + "-" + generalStopwatch.ElapsedMilliseconds;
 
-        var windowId = request.ReadFromWindow.windowId;
+        var windowId = readFromWindow.windowId;
         var windowHandle = new IntPtr(long.Parse(windowId));
 
         WinApi.GetWindowThreadProcessId(windowHandle, out var processIdUnsigned);
 
-        if (processIdUnsigned == 0)
+        if (processIdUnsigned is 0)
+        {
             return new Response
             {
                 ReadFromWindowResult = new Response.ReadFromWindowResultStructure
@@ -281,6 +282,7 @@ Response request(Request request)
                     ProcessNotFound = new object(),
                 }
             };
+        }
 
         var processId = (int)processIdUnsigned;
 
@@ -298,7 +300,7 @@ Response request(Request request)
 
         using (var memoryReader = new read_memory_64_bit.MemoryReaderFromLiveProcess(processId))
         {
-            var uiTree = read_memory_64_bit.EveOnline64.ReadUITreeFromAddress(request.ReadFromWindow.uiRootAddress, memoryReader, 99);
+            var uiTree = read_memory_64_bit.EveOnline64.ReadUITreeFromAddress(readFromWindow.uiRootAddress, memoryReader, 99);
 
             if (uiTree != null)
             {
@@ -308,6 +310,7 @@ Response request(Request request)
             }
         }
 
+        if (false) // For alternative UI: Do not bring to foreground on cyclical read.
         {
             /*
             Maybe taking screenshots needs the window to be not occluded by other windows.
@@ -315,7 +318,7 @@ Response request(Request request)
             */
             var setForegroundWindowError = SetForegroundWindowInWindows.TrySetForegroundWindow(windowHandle);
 
-            if (setForegroundWindowError != null)
+            if (setForegroundWindowError is not null)
             {
                 return new Response
                 {

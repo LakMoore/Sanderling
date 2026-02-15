@@ -19,11 +19,15 @@ jobs:
     - name: Avoid git mutating files on checkout
       run: |
         git config --global core.autocrlf false
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
+
+    - uses: actions/checkout@v5
+
+    - uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: '7.0.101'
-    - name: Display .NET information.
+        dotnet-version: '9.0.x'
+        dotnet-quality: 'ga'
+
+    - name: Check installed dotnet
       run: dotnet --info
 
     - name: Clean package cache as a temporary workaround for https://github.com/actions/setup-dotnet/issues/155
@@ -35,7 +39,7 @@ jobs:
     - name: dotnet publish - self contained single file executable
       env:
         PUBLISH_RUNTIME_ID: ${{ matrix.publish-runtime-id }}
-      run: dotnet publish -c Debug -r ${{ env.PUBLISH_RUNTIME_ID }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true -p:PublishReadyToRun=true -p:PublishReadyToRunShowWarnings=true  --output ./publish  ./implement/read-memory-64-bit
+      run: dotnet publish -c Release -r ${{ env.PUBLISH_RUNTIME_ID }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:IncludeAllContentForSelfExtract=true -p:PublishReadyToRun=true -p:PublishReadyToRunShowWarnings=true  --output ./publish  ./implement/read-memory-64-bit/read-memory-64-bit.csproj
 
     - name: Publish artifacts - self contained single file executable
       uses: actions/upload-artifact@v4
@@ -44,7 +48,7 @@ jobs:
         path: ./publish
 
     - name: dotnet publish - separate assemblies
-      run: dotnet publish -c Debug ./implement/read-memory-64-bit --output ./publish-separate-assemblies
+      run: dotnet publish -c Release ./implement/read-memory-64-bit/read-memory-64-bit.csproj --output ./publish-separate-assemblies
 
     - name: Publish artifacts - separate assemblies
       uses: actions/upload-artifact@v4

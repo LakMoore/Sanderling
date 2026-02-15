@@ -1,41 +1,40 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace read_memory_64_bit
+namespace read_memory_64_bit;
+
+internal class MemoryReadingCache
 {
-  internal class MemoryReadingCache
+  IDictionary<ulong, string> PythonTypeNameFromPythonObjectAddress;
+
+  IDictionary<ulong, string> PythonStringValueMaxLength4000;
+
+  IDictionary<ulong, object> DictEntryValueRepresentation;
+
+  public MemoryReadingCache()
   {
-    IDictionary<ulong, string> PythonTypeNameFromPythonObjectAddress;
+    PythonTypeNameFromPythonObjectAddress = new Dictionary<ulong, string>();
+    PythonStringValueMaxLength4000 = new Dictionary<ulong, string>();
+    DictEntryValueRepresentation = new Dictionary<ulong, object>();
+  }
 
-    IDictionary<ulong, string> PythonStringValueMaxLength4000;
+  public string GetPythonTypeNameFromPythonObjectAddress(ulong address, Func<ulong, string> getFresh) =>
+      GetFromCacheOrUpdate(PythonTypeNameFromPythonObjectAddress, address, getFresh);
 
-    IDictionary<ulong, object> DictEntryValueRepresentation;
+  public string GetPythonStringValueMaxLength4000(ulong address, Func<ulong, string> getFresh) =>
+      GetFromCacheOrUpdate(PythonStringValueMaxLength4000, address, getFresh);
 
-    public MemoryReadingCache()
-    {
-      PythonTypeNameFromPythonObjectAddress = new Dictionary<ulong, string>();
-      PythonStringValueMaxLength4000 = new Dictionary<ulong, string>();
-      DictEntryValueRepresentation = new Dictionary<ulong, object>();
-    }
+  public object GetDictEntryValueRepresentation(ulong address, Func<ulong, object> getFresh) =>
+      GetFromCacheOrUpdate(DictEntryValueRepresentation, address, getFresh);
 
-    public string GetPythonTypeNameFromPythonObjectAddress(ulong address, Func<ulong, string> getFresh) =>
-        GetFromCacheOrUpdate(PythonTypeNameFromPythonObjectAddress, address, getFresh);
+  static TValue GetFromCacheOrUpdate<TKey, TValue>(IDictionary<TKey, TValue> cache, TKey key, Func<TKey, TValue> getFresh)
+  {
+    if (cache.TryGetValue(key, out var fromCache))
+      return fromCache;
 
-    public string GetPythonStringValueMaxLength4000(ulong address, Func<ulong, string> getFresh) =>
-        GetFromCacheOrUpdate(PythonStringValueMaxLength4000, address, getFresh);
+    var fresh = getFresh(key);
 
-    public object GetDictEntryValueRepresentation(ulong address, Func<ulong, object> getFresh) =>
-        GetFromCacheOrUpdate(DictEntryValueRepresentation, address, getFresh);
-
-    static TValue GetFromCacheOrUpdate<TKey, TValue>(IDictionary<TKey, TValue> cache, TKey key, Func<TKey, TValue> getFresh)
-    {
-      if (cache.TryGetValue(key, out var fromCache))
-        return fromCache;
-
-      var fresh = getFresh(key);
-
-      cache[key] = fresh;
-      return fresh;
-    }
+    cache[key] = fresh;
+    return fresh;
   }
 }

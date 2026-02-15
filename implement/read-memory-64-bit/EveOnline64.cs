@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 
 namespace read_memory_64_bit;
 
-
 public class EveOnline64
 {
     static public IImmutableList<ulong> EnumeratePossibleAddressesForUIRootObjectsFromProcessId(int processId)
@@ -26,14 +25,14 @@ public class EveOnline64
         return genericResult;
     }
 
-    static public (IImmutableList<(ulong baseAddress, int length)> memoryRegions, IImmutableList<string> logEntries)
+    static public (IImmutableList<(ulong baseAddress, ulong length)> memoryRegions, IImmutableList<string> logEntries)
         ReadCommittedMemoryRegionsWithoutContentFromProcessId(int processId)
     {
         var genericResult = ReadCommittedMemoryRegionsFromProcessId(processId, readContent: false);
 
         var memoryRegions =
             genericResult.memoryRegions
-            .Select(memoryRegion => (baseAddress: memoryRegion.baseAddress, length: (int)memoryRegion.length))
+            .Select(memoryRegion => (baseAddress: memoryRegion.baseAddress, length: memoryRegion.length))
             .ToImmutableList();
 
         return (memoryRegions, genericResult.logEntries);
@@ -68,9 +67,9 @@ public class EveOnline64
         {
             int result = WinApi.VirtualQueryEx(
                 processHandle,
-                (IntPtr)address,
-                out WinApi.MEMORY_BASIC_INFORMATION m,
-                (uint)Marshal.SizeOf<WinApi.MEMORY_BASIC_INFORMATION>());
+                lpAddress: (IntPtr)address,
+                out WinApi.MEMORY_BASIC_INFORMATION64 m,
+                (uint)Marshal.SizeOf<WinApi.MEMORY_BASIC_INFORMATION64>());
 
             var regionProtection = (WinApi.MemoryInformationProtection)m.Protect;
 
@@ -85,7 +84,7 @@ public class EveOnline64
 
             address = (long)m.BaseAddress + (long)m.RegionSize;
 
-            if (m.State != WinApi.MemoryInformationState.MEM_COMMIT)
+            if (m.State != (int)WinApi.MemoryInformationState.MEM_COMMIT)
                 continue;
 
             var protectionFlagsToSkip =
@@ -111,7 +110,7 @@ public class EveOnline64
 
                 WinApi.ReadProcessMemory(
                     processHandle,
-                    (ulong)regionBaseAddress,
+                    regionBaseAddress,
                     regionContentBuffer,
                     (UIntPtr)regionContentBuffer.LongLength,
                     ref bytesRead);
@@ -126,8 +125,8 @@ public class EveOnline64
             }
 
             committedRegions.Add(new SampleMemoryRegion(
-                baseAddress: (ulong)regionBaseAddress,
-                length: (ulong)m.RegionSize,
+                baseAddress: regionBaseAddress,
+                length: m.RegionSize,
                 content: regionContent));
 
         } while (true);
@@ -140,7 +139,7 @@ public class EveOnline64
     }
 
     static public IImmutableList<ulong> EnumeratePossibleAddressesForUIRootObjects(
-        IEnumerable<(ulong baseAddress, int length)> memoryRegions,
+        IEnumerable<(ulong baseAddress, ulong length)> memoryRegions,
         IMemoryReader memoryReader)
     {
         var memoryRegionsOrderedByAddress =
@@ -170,9 +169,24 @@ public class EveOnline64
             return System.Text.Encoding.ASCII.GetString(asSpan[..length]);
         }
 
-        ReadOnlyMemory<ulong>? ReadMemoryRegionContentAsULongArray((ulong baseAddress, int length) memoryRegion)
+        ReadOnlyMemory<ulong>? ReadMemoryRegionContentAsULongArray((ulong baseAddress, ulong length) memoryRegion)
         {
-            var asByteArray = memoryReader.ReadBytes(memoryRegion.baseAddress, memoryRegion.length);
+            var lengthAsInt = (int)memoryRegion.length;
+
+            if (lengthAsInt < 0)
+                return null;
+
+            if (int.MaxValue < memoryRegion.length)
+            {
+                /*
+                 * TODO: Check if Windows API could possibly report such large memory regions.
+                 * If that is the case, implement reading in chunks.
+                 * */
+                return null;
+            }
+
+            var asByteArray =
+                memoryReader.ReadBytes(memoryRegion.baseAddress, lengthAsInt);
 
             if (asByteArray is null)
                 return null;
@@ -182,9 +196,10 @@ public class EveOnline64
 
         IEnumerable<ulong> EnumerateCandidatesForPythonTypeObjectType()
         {
-            IEnumerable<ulong> EnumerateCandidatesForPythonTypeObjectTypeInMemoryRegion((ulong baseAddress, int length) memoryRegion)
+            IEnumerable<ulong> EnumerateCandidatesForPythonTypeObjectTypeInMemoryRegion((ulong baseAddress, ulong length) memoryRegion)
             {
-                var memoryRegionContentAsULongArray = ReadMemoryRegionContentAsULongArray(memoryRegion);
+                var memoryRegionContentAsULongArray =
+                    ReadMemoryRegionContentAsULongArray(memoryRegion);
 
                 if (memoryRegionContentAsULongArray is null)
                     yield break;
@@ -212,7 +227,7 @@ public class EveOnline64
             return
                 memoryRegionsOrderedByAddress
                 .AsParallel()
-                .WithDegreeOfParallelism(8)
+                .WithDegreeOfParallelism(2)
                 .SelectMany(EnumerateCandidatesForPythonTypeObjectTypeInMemoryRegion)
                 .ToImmutableArray();
         }
@@ -307,13 +322,6 @@ public class EveOnline64
             .ToImmutableList();
     }
 
-    internal struct PyDictEntry
-    {
-        public ulong hash;
-        public ulong key;
-        public ulong value;
-    }
-
     internal static readonly IImmutableSet<string> DictEntriesOfInterestKeys = ImmutableHashSet.Create(
         "_top", "_left", "_width", "_height", "_displayX", "_displayY",
         "_displayHeight", "_displayWidth",
@@ -365,39 +373,6 @@ public class EveOnline64
         "displayName", "charid"
     );
 
-    internal struct LocalMemoryReadingTools
-    {
-        public IMemoryReader memoryReader;
-
-        public Func<ulong, IImmutableDictionary<string, ulong>> getDictionaryEntriesWithStringKeys;
-
-        public Func<ulong, string> GetPythonTypeNameFromPythonObjectAddress;
-
-        public Func<ulong, LocalMemoryReadingTools, object> GetDictEntryValueRepresentation;
-    }
-
-    internal static string ReadPythonStringValue(ulong stringObjectAddress, IMemoryReader memoryReader, int maxLength)
-    {
-        //  https://github.com/python/cpython/blob/362ede2232107fc54d406bb9de7711ff7574e1d4/Include/stringobject.h
-
-        var stringObjectMemory = memoryReader.ReadBytes(stringObjectAddress, 0x20);
-
-        if (!(stringObjectMemory?.Length == 0x20))
-            return "Failed to read string object memory.";
-
-        var stringObject_ob_size = BitConverter.ToUInt64(stringObjectMemory.Value.Span[0x10..]);
-
-        if (0 < maxLength && maxLength < (int)stringObject_ob_size || int.MaxValue < stringObject_ob_size)
-            return "String too long.";
-
-        var stringBytes = memoryReader.ReadBytes(stringObjectAddress + 8 * 4, (int)stringObject_ob_size);
-
-        if (!(stringBytes?.Length == (int)stringObject_ob_size))
-            return "Failed to read string bytes.";
-
-        return System.Text.Encoding.ASCII.GetString(stringBytes.Value.Span);
-    }
-
     static public UITreeNode ReadUITreeFromAddress(ulong nodeAddress, IMemoryReader memoryReader, int maxDepth) =>
         ReadUITreeFromAddress(nodeAddress, memoryReader, maxDepth, null);
 
@@ -412,14 +387,7 @@ public class EveOnline64
         if (!(0x30 == uiNodeObjectMemory?.Length))
             return null;
 
-        var localMemoryReadingTools = new LocalMemoryReadingTools
-        {
-            memoryReader = memoryReader,
-            getDictionaryEntriesWithStringKeys = pythonReader.GetDictionaryEntriesWithStringKeys,
-            GetPythonTypeNameFromPythonObjectAddress = pythonReader.getPythonTypeNameFromPythonObjectAddress,
-        };
-
-        var pythonObjectTypeName = pythonReader.getPythonTypeNameFromPythonObjectAddress(nodeAddress);
+        var pythonObjectTypeName = pythonReader.GetPythonTypeNameFromPythonObjectAddress(nodeAddress);
 
         if (!(0 < pythonObjectTypeName?.Length))
             return null;
@@ -435,11 +403,9 @@ public class EveOnline64
 
         var otherDictEntriesKeys = new List<string>();
 
-        localMemoryReadingTools.GetDictEntryValueRepresentation = pythonReader.GetDictEntryValueRepresentation;
-
         foreach (var dictionaryEntry in dictionaryEntries)
         {
-            var keyObject_type_name = pythonReader.getPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key);
+            var keyObject_type_name = pythonReader.GetPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key);
 
             //  Console.WriteLine($"Dict entry type name is '{keyObject_type_name}'");
 
@@ -457,14 +423,14 @@ public class EveOnline64
             dictEntriesOfInterest.Add(new UITreeNode.DictEntry
             (
                 key: keyString,
-                value: pythonReader.GetDictEntryValueRepresentation(dictionaryEntry.value, localMemoryReadingTools)
+                value: pythonReader.GetDictEntryValueRepresentation(dictionaryEntry.value)
             ));
         }
 
         {
             var _displayDictEntry = dictEntriesOfInterest.FirstOrDefault(entry => entry.key == "_display");
 
-            if (_displayDictEntry != null && (_displayDictEntry.value is bool displayAsBool))
+            if (_displayDictEntry is not null && (_displayDictEntry.value is bool displayAsBool))
                 if (!displayAsBool)
                     return null;
         }
@@ -476,7 +442,8 @@ public class EveOnline64
 
             //  https://github.com/Arcitectus/Sanderling/blob/b07769fb4283e401836d050870121780f5f37910/guide/image/2015-01.eve-online-python-ui-tree-structure.png
 
-            var childrenDictEntry = dictEntriesOfInterest.FirstOrDefault(entry => entry.key == "children");
+            var childrenDictEntry =
+                dictEntriesOfInterest.FirstOrDefault(entry => entry.key is "children");
 
             if (childrenDictEntry is null)
                 return null;
@@ -486,90 +453,90 @@ public class EveOnline64
 
                 var childrenEntryObjectAddress = childrenEntryObject.address;
 
-                //  Console.WriteLine($"'children' dict entry of 0x{nodeAddress:X} points to 0x{childrenEntryObjectAddress:X}.");
+            //  Console.WriteLine($"'children' dict entry of 0x{nodeAddress:X} points to 0x{childrenEntryObjectAddress:X}.");
 
-                var pyChildrenListMemory = memoryReader.ReadBytes(childrenEntryObjectAddress, 0x18);
+            var pyChildrenListMemory = memoryReader.ReadBytes(childrenEntryObjectAddress, 0x18);
+
+            if (!(pyChildrenListMemory?.Length == 0x18))
+                return null;
+
+            var pyChildrenDictAddress = BitConverter.ToUInt64(pyChildrenListMemory.Value.Span[0x10..]);
+
+                var pyChildrenDictEntries = pythonReader.ReadActiveDictionaryEntriesFromDictionaryAddress(pyChildrenDictAddress);
+
+            //  Console.WriteLine($"Found {(pyChildrenDictEntries is null ? "no" : "some")} children dictionary entries for 0x{nodeAddress:X}");
+
+            if (pyChildrenDictEntries is null)
+                return null;
+
+            var childrenEntry =
+                pyChildrenDictEntries
+                .FirstOrDefault(dictionaryEntry =>
+                {
+                        if (pythonReader.GetPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key) is not "str")
+                        return false;
+
+                        var keyString = pythonReader.readPythonStringValueMaxLength4000(dictionaryEntry.key);
+
+                    return keyString == "_childrenObjects";
+                });
+
+            //  Console.WriteLine($"Found {(childrenEntry.value == 0 ? "no" : "a")} dictionary entry for children of 0x{nodeAddress:X}");
+
+            if (childrenEntry.value is 0)
+                return null;
+
+                if (pythonReader.GetPythonTypeNameFromPythonObjectAddress(childrenEntry.value).Equals("PyChildrenList"))
+            {
+                pyChildrenListMemory = memoryReader.ReadBytes(childrenEntry.value, 0x18);
 
                 if (!(pyChildrenListMemory?.Length == 0x18))
                     return null;
 
-                var pyChildrenDictAddress = BitConverter.ToUInt64(pyChildrenListMemory.Value.Span[0x10..]);
+                pyChildrenDictAddress = BitConverter.ToUInt64(pyChildrenListMemory.Value.Span[0x10..]);
 
-                var pyChildrenDictEntries = pythonReader.ReadActiveDictionaryEntriesFromDictionaryAddress(pyChildrenDictAddress);
-
-                //  Console.WriteLine($"Found {(pyChildrenDictEntries is null ? "no" : "some")} children dictionary entries for 0x{nodeAddress:X}");
+                    pyChildrenDictEntries = pythonReader.ReadActiveDictionaryEntriesFromDictionaryAddress(pyChildrenDictAddress);
 
                 if (pyChildrenDictEntries is null)
                     return null;
 
-                var childrenEntry =
+                childrenEntry =
                     pyChildrenDictEntries
                     .FirstOrDefault(dictionaryEntry =>
                     {
-                        if (pythonReader.getPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key) is not "str")
+                            if (pythonReader.GetPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key) is not "str")
                             return false;
-
-                        var keyString = pythonReader.readPythonStringValueMaxLength4000(dictionaryEntry.key);
-
-                        return keyString == "_childrenObjects";
-                    });
-
-                //  Console.WriteLine($"Found {(childrenEntry.value == 0 ? "no" : "a")} dictionary entry for children of 0x{nodeAddress:X}");
-
-                if (childrenEntry.value == 0)
-                    return null;
-
-                if (pythonReader.getPythonTypeNameFromPythonObjectAddress(childrenEntry.value).Equals("PyChildrenList"))
-                {
-                    pyChildrenListMemory = memoryReader.ReadBytes(childrenEntry.value, 0x18);
-
-                    if (!(pyChildrenListMemory?.Length == 0x18))
-                        return null;
-
-                    pyChildrenDictAddress = BitConverter.ToUInt64(pyChildrenListMemory.Value.Span[0x10..]);
-
-                    pyChildrenDictEntries = pythonReader.ReadActiveDictionaryEntriesFromDictionaryAddress(pyChildrenDictAddress);
-
-                    if (pyChildrenDictEntries is null)
-                        return null;
-
-                    childrenEntry =
-                        pyChildrenDictEntries
-                        .FirstOrDefault(dictionaryEntry =>
-                        {
-                            if (pythonReader.getPythonTypeNameFromPythonObjectAddress(dictionaryEntry.key) is not "str")
-                                return false;
 
                             var keyString = pythonReader.readPythonStringValueMaxLength4000(dictionaryEntry.key);
 
-                            return keyString == "_childrenObjects";
-                        });
-                }
+                        return keyString is "_childrenObjects";
+                    });
+            }
 
-                var pythonListObjectMemory = memoryReader.ReadBytes(childrenEntry.value, 0x20);
+            var pythonListObjectMemory = memoryReader.ReadBytes(childrenEntry.value, 0x20);
 
-                if (!(pythonListObjectMemory?.Length == 0x20))
-                    return null;
+            if (!(pythonListObjectMemory?.Length == 0x20))
+                return null;
 
-                //  https://github.com/python/cpython/blob/362ede2232107fc54d406bb9de7711ff7574e1d4/Include/listobject.h
+            //  https://github.com/python/cpython/blob/362ede2232107fc54d406bb9de7711ff7574e1d4/Include/listobject.h
 
-                var list_ob_size = BitConverter.ToUInt64(pythonListObjectMemory.Value.Span[0x10..]);
+            var list_ob_size = BitConverter.ToUInt64(pythonListObjectMemory.Value.Span[0x10..]);
 
-                if (4000 < list_ob_size)
-                    return null;
+            if (4000 < list_ob_size)
+                return null;
 
-                var listEntriesSize = (int)list_ob_size * 8;
+            var listEntriesSize = (int)list_ob_size * 8;
 
-                var list_ob_item = BitConverter.ToUInt64(pythonListObjectMemory.Value.Span[0x18..]);
+            var list_ob_item = BitConverter.ToUInt64(pythonListObjectMemory.Value.Span[0x18..]);
 
-                var listEntriesMemory = memoryReader.ReadBytes(list_ob_item, listEntriesSize);
+            var listEntriesMemory = memoryReader.ReadBytes(list_ob_item, listEntriesSize);
 
-                if (!(listEntriesMemory?.Length == listEntriesSize))
-                    return null;
+            if (!(listEntriesMemory?.Length == listEntriesSize))
+                return null;
 
-                var listEntries = TransformMemoryContent.AsULongMemory(listEntriesMemory.Value);
+            var listEntries = TransformMemoryContent.AsULongMemory(listEntriesMemory.Value);
 
-                //  Console.WriteLine($"Found {listEntries.Length} children entries for 0x{nodeAddress:X}: " + String.Join(", ", listEntries.Select(childAddress => $"0x{childAddress:X}").ToArray()));
+            //  Console.WriteLine($"Found {listEntries.Length} children entries for 0x{nodeAddress:X}: " + String.Join(", ", listEntries.Select(childAddress => $"0x{childAddress:X}").ToArray()));
 
                 return
                      [.. listEntries
@@ -605,7 +572,7 @@ public class EveOnline64
             pythonObjectTypeName: pythonObjectTypeName,
             dictEntriesOfInterest: dictEntriesOfInterestDict,
             otherDictEntriesKeys: [.. otherDictEntriesKeys],
-            children: ReadChildren(pythonReader)?.Where(child => child != null)?.ToArray()
+            children: ReadChildren(pythonReader)?.Where(child => child is not null)?.ToArray()
         );
     }
 
