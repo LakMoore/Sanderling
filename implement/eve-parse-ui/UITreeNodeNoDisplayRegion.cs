@@ -89,5 +89,73 @@ namespace eve_parse_ui
     {
       return dictEntriesOfInterest.GetValueOrDefault("_name") as string;
     }
+
+    // Convenience methods for accessing dictionary entries with proper type handling
+    public string? GetStringFromDictEntries(string key)
+    {
+      return dictEntriesOfInterest?.GetValueOrDefault(key) as string;
+    }
+
+    public bool? GetBoolFromDictEntries(string key)
+    {
+      return dictEntriesOfInterest?.GetValueOrDefault(key) as bool?;
+    }
+
+    public int? GetIntFromDictEntries(string key)
+    {
+      if (dictEntriesOfInterest == null || !dictEntriesOfInterest.TryGetValue(key, out var value))
+        return null;
+
+      if (value is int intValue)
+        return intValue;
+
+      if (value is double doubleValue)
+        return (int)doubleValue;
+
+      // Handle case where value might be a python long
+      try
+      {
+        if (value != null)
+        {
+          var intProperty = value.GetType().GetProperty("int_low32");
+          if (intProperty != null)
+          {
+            var i = intProperty.GetValue(value);
+            if (i != null)
+            {
+              return (int)i;
+            }
+          }
+        }
+      }
+      catch
+      {
+        // Ignore conversion errors
+      }
+
+      return null;
+    }
+
+    public double? GetDoubleFromDictEntries(string key)
+    {
+      if (dictEntriesOfInterest == null || !dictEntriesOfInterest.TryGetValue(key, out var value))
+        return null;
+
+      if (value is double doubleValue)
+        return doubleValue;
+
+      if (value is int intValue)
+        return intValue;
+
+      if (value is float floatValue)
+        return floatValue;
+
+      return null;
+    }
+
+    public T? GetFromDictEntries<T>(string key) where T : class
+    {
+      return dictEntriesOfInterest?.GetValueOrDefault(key) as T;
+    }
   }
 }
