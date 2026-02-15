@@ -6,18 +6,18 @@ namespace eve_parse_ui
   public record ParsedUserInterface
   {
     public required UITreeNodeWithDisplayRegion UiTree { get; init; }
-    public required IEnumerable<ContextMenu> ContextMenus { get; init; }
+    public required Lazy<IEnumerable<ContextMenu>> ContextMenus { get; init; }
     public required Lazy<ShipUI?> ShipUI { get; init; }
     public required Lazy<IEnumerable<Target>> Targets { get; init; }
     public required Lazy<InfoPanelContainer?> InfoPanelContainer { get; init; }
     public required Lazy<IEnumerable<OverviewWindow>> OverviewWindows { get; init; }
-    public SelectedItemWindow? SelectedItemWindow { get; init; }
-    public DronesWindow? DronesWindow { get; init; }
+    public required Lazy<SelectedItemWindow?> SelectedItemWindow { get; init; }
+    public required Lazy<DronesWindow?> DronesWindow { get; init; }
     //public FittingWindow? FittingWindow { get; init; }
-    public ProbeScannerWindow? ProbeScannerWindow { get; init; }
+    public required Lazy<ProbeScannerWindow?> ProbeScannerWindow { get; init; }
     //public DirectionalScannerWindow? DirectionalScannerWindow { get; init; }
-    public StationWindow? StationWindow { get; init; }
-    public required IEnumerable<InventoryWindow> InventoryWindows { get; init; }
+    public required Lazy<StationWindow?> StationWindow { get; init; }
+    public required Lazy<IEnumerable<InventoryWindow>> InventoryWindows { get; init; }
     public required Lazy<IEnumerable<WindowStack>> WindowStacks { get; init; }
     public required Lazy<IEnumerable<ChatWindow>> ChatWindows { get; init; }
     //public required IReadOnlyList<AgentConversationWindow> AgentConversationWindows { get; init; }
@@ -32,26 +32,26 @@ namespace eve_parse_ui
     //public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
     //public ModuleButtonTooltip? ModuleButtonTooltip { get; init; }
     //public HeatStatusTooltip? HeatStatusTooltip { get; init; }
-    public Neocom? Neocom { get; init; }
-    public required IEnumerable<MessageBox> MessageBoxes { get; init; }
-    public LayerAboveMain? LayerAboveMain { get; init; }
+    public required Lazy<Neocom?> Neocom { get; init; }
+    public required Lazy<IEnumerable<MessageBox>> MessageBoxes { get; init; }
+    public required Lazy<LayerAboveMain?> LayerAboveMain { get; init; }
     //public KeyActivationWindow? KeyActivationWindow { get; init; }
     //public CompressionWindow? CompressionWindow { get; init; }
-    public PlanetsWindow? PlanetsWindow { get; init; }
-    public PlanetaryImportExportUI? PlanetaryImportExportUI { get; init; }
-    public SessionTimeIndicator? SessionTimeIndicator { get; init; }
-    public Lazy<InputModal?> InputModal { get; init; }
-    public ExpandedUtilMenu? ExpandedUtilMenu { get; init; }
-    public required IEnumerable<ListWindow> ListWindows { get; init; }
-    public CharacterSelectionScreen? CharacterSelectionScreen { get; init; }
-    public StandaloneBookmarkWindow? StandaloneBookmarkWindow { get; init; }
-    public DailyLoginRewardsWindow? DailyLoginRewardsWindow { get; init; }
-    public required IEnumerable<InfoWindow> InfoWindows { get; init; }
-    public AssetsWindow? AssetsWindow { get; init; }
+    public required Lazy<PlanetsWindow?> PlanetsWindow { get; init; }
+    public required Lazy<PlanetaryImportExportUI?> PlanetaryImportExportUI { get; init; }
+    public required Lazy<SessionTimeIndicator?> SessionTimeIndicator { get; init; }
+    public required Lazy<InputModal?> InputModal { get; init; }
+    public required Lazy<ExpandedUtilMenu?> ExpandedUtilMenu { get; init; }
+    public required Lazy<IEnumerable<ListWindow>> ListWindows { get; init; }
+    public required Lazy<CharacterSelectionScreen?> CharacterSelectionScreen { get; init; }
+    public required Lazy<StandaloneBookmarkWindow?> StandaloneBookmarkWindow { get; init; }
+    public required Lazy<DailyLoginRewardsWindow?> DailyLoginRewardsWindow { get; init; }
+    public required Lazy<IEnumerable<InfoWindow>> InfoWindows { get; init; }
+    public required Lazy<AssetsWindow?> AssetsWindow { get; init; }
     public required Lazy<RegionalMarketWindow?> RegionalMarketWindow { get; init; }
     public required Lazy<BuyMarketActionWindow?> BuyMarketActionWindow { get; init; }
     public required Lazy<ModifyMarketActionWindow?> ModifyMarketActionWindow { get; init; }
-    public SelectStationWindow? SelectStationWindow { get; init; }
+    public required Lazy<SelectStationWindow?> SelectStationWindow { get; init; }
     public required Lazy<MarketOrdersWindow?> MarketOrdersWindow { get; init; }
 
   }
